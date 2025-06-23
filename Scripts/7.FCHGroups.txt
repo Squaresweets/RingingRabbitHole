@@ -1,0 +1,17 @@
+- What does "To be false against" mean
+- Transpositions
+- In course and out of course
+- cps 
+- Inverting
+
+If one is false then all is false against plain course?
+
+First note that the same row of two leads can only be identical if they are the same lead. This is why you need to look at the different rows where the treble is in the same place.
+
+Algorithm: Look at every in first lead. For each row check if any other row after has treble in same place. Work out the lead head that would be needed to get that row in that position. Attempt to find coursehead to see if we have a tenors together one. Can transpose those by the lead end to get same for the next few leads.
+
+CPS means there are no false courses which are in-course with the tenors together.
+
+https://cccbr.org.uk/wp-content/uploads/2016/02/leary.pdf
+
+God this is going to be complicated

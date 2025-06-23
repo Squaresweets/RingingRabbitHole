@@ -1,0 +1,12 @@
+Parts of manim library:
+Full method from place notation
+Options for which lines to render
+Options for compositions and being able to change them on the fly
+Options to fade out top and bottom to only show a part (might already be in manim)
+Ability to take out certain numbers in an animation
+Option to have a title
+Option to show place notation on the side
+Ability to access center (for symmetry).
+Displaying compositions in a grid form
+
+Hole, rope coming up out of hole, rabbit holding on to Sally looking up left, text underneath

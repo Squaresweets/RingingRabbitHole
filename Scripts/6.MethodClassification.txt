@@ -1,0 +1,28 @@
+Method names always contain words such as plain, delight, surprise or alliance to describe a property of a method. In this video I hope to demystify what each of these words mean.
+
+My name is Matthew, and welcome to this episode of "The Ringing Rabbit Hole"
+
+-- Intro Sequence -- 
+
+To start off with, these are the different terms I will be defining. All of this information is taken from the central council's framework for method ringing, which I will link in the description. All of these classifications only apply to methods with only one hunt bell.
+
+To start with, we have plain methods. In a plain method, during a plain lead the hunt bell must ring exactly twice in each place. Any of these paths would make the method a plain method. A method which has jump changes cannot be a plain method. There are two subcategories of plain methods:
+If the path of all the bells only consist of hunting and making places, and there are no non place directional changes it is known as a place method, otherwise it is known as a bob method. This is where the name "plain bob" comes from, as there are non place directional changes during dodges.
+
+Treble dodging methods are the second most common. In these methods the treble typically follows this pattern, dodging in 1/2, 3/4, 5/6 and so on all the way to the back. Although this is the most common pattern, if a different amount of dodges are used this is still a valid treble dodging method. More specifically these are the rules that need to be followed. Note that these rules have the effect of only allowing treble dodging methods on an even number of bells, and the length of leads can only be even. There are three subcategories of treble dodging methods.
+Changes where the treble isn't dodging are known as cross sections. An internal place is when a bell stays in the same position while not leading or lying. If we have no internal places t any cross sections we have a treble bob method. If we have one or more internal places at evry cross section we have a surprise method. If we only have an internal place at some cross sections we have a delight method.
+
+A treble place method is one which follows these rules. It loosens the restrictions on treble dodging methods allowing for more than 2 places to be made. This leads to many more possible paths. If the hunt bell is a stationary bell this also counts as a treble place method. A stationary bell just stays in the same place for every row of a plain lead.
+
+An alliance method is one where the hunt bell follows these rules, relaxing the rules more and allowing the hunt bell to ring the same number of times in each place.
+
+A hybrid method is one where the hunt bell isn't plain, treble dodging, treble place or alliance but is not little.
+
+A little method is one where the path of the hunt bell does not go to all the possible places.
+
+*Classifying with more than one hunt bell*
+https://framework.cccbr.org.uk/version2/classification.html
+
+
+Dynamic methods
+
