@@ -1,0 +1,17 @@
+In the last episode we went over how the structure of a method. But today, I want to talk about how calls work.
+
+-- Intro sequence --
+
+A call occurs whenever the conductor shouts "Bob" or "Single" in order to change what each bell does next. A call can happen at the end of any lead, and typically changes the lead end change. For example, in plain bob doubles if a call was made instead of making this change you would make this change. This then changes the lead head of the next lead.
+
+In plain bob doubles this means that if a call was made, instead of the 2 becoming 4ths place bell, it instead hunts in and becomes second place bell, so it does next what the 3 would have done if there wasn't a call. In our circle of work this can be visualised as this transition.
+
+Now something important to note is that if we now keep having plain leads the closest we could get to rounds is this row, but we can never actually get back to rounds. This is because the call has sent us to a different "course". For the plain course the "course head" is just rounds, however in this new course where we can never get back to rounds the course head is this.
+
+If we look closer at the effect of the call we can see why this occurs. The 2 has effectively taken over the path of the 3, the 3 has taken over the path of the 5 and the 5 has taken over the path of the two. This same change of roles can be applied to the current course head, so 12345 becomes 15243. The analysis of how the course head change is tied closely to coursing order. One thing to note is that bobs typically swap around 3 bells, where as singles only swap around a "single" pair. (Why is it called a bob?)
+
+The effect of all this is that to successfuly call a touch of a method you need to navigate these course heads to get you back into the plain course and back to rounds, while not repeating any rows too many times and getting some nice musical rows.
+
+To keep track of where to call calls, conductors can use calling positions. Each place bell has a different calling position which describes where the conductors bell would be at the end of that lead should a call be made.
+
+If, with a call, your bell ends up in the last place it is known as a call at "home". If you end up at a place one from the right its known as wrong if you have an even stage and middle if you have an odd stage. If you end up at a place two from the right it is the opposite, a middle for an even stage and a wrong for an odd stage. This definition isn't perfectly agreed upon and some publications may treat middle as always being two from the back and wrong as always being one from the back, so be careful. The reason for swapping these around is quite subtle and I'll explain it in more detail in the future.

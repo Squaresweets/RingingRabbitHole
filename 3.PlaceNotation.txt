@@ -1,0 +1,15 @@
+This is a plain lead of plain bob doubles. It’s a lot of numbers, but believe it or not this whole method can be encoded with just these numbers:
+5.1.5.1.5,125
+This is known as place notation and it plays a vital role in how methods are stored and shared. But how does it work?
+First, lets examine the first lead of our method. Between each row, certain pairs of bells swap and certain bells stay in the same position. In the first change you can see that the bell in fifths place stays in the same place, while the other bells swap around, thus the place notation for this change would simply be “5”. For the next row the bell in firsts place stays in the same place and thus the place notation for this change would be “1”.
+
+Let’s fill in the rest using this pattern. Since the bells are just plain hunting, this is pretty simple up until the change at the lead end. Here we instead have 3 bells stay in the same place, the bell in 1st, 2nd and 5ths place, so we write 125 for the notation.
+So here is the place notation for this method written out in full. A clever trick is that methods with palindromic symmetry have the same notation reversed after the center change, which means that half of this notation is redundant. We can instead write it like this. To expand it to the full notation you just have to take all up to the last change before the comma, flip it, and put it after the comma. This gets us back to what we had before. Since every lead of a method is the same just with different bells, describing the first lead is sufficient for us to generate the entire method.
+
+Describing calls is simple with this notation. When a call occurs, it overrides a small amount of place notation at the end of a lead. The amount of notation and the position where these changes occur change from method to method, but most of the time, it is one piece of notation changed at the lead end. For plain bob doubles, a bob changes the “125” change to a “145” change, and a single changes it to a “123” change.
+
+Let’s look at another method:
+Auryn Differential Minor
+This one is a bit more complicated. First, notice that since we don’t have palindromic symmetry, we can’t use the trick to let us shorten our notation. Also, note that now that we have an even number of bells, it is possible for no bells to stay in the same position. If this is the case for a change, it is called a cross and is shown using the “x” notation. There is no need to put a full stop next to an x. Since it acts as its own change.
+
+As a side tangent, there are sometimes inconsistencies about leaving some numbers out in the notation. For example, in a minimus method, if we had the notation “1”, there must be some other bell which also makes a place, as there are 3 other bells. Some sources may correct this to 12 and some to 14. For example, the single in stedman doubles has the notation “45”; however, this is short for “ 345” not “145”. Be careful with this, and when in doubt, write the notation out in full to avoid ambiguity.
