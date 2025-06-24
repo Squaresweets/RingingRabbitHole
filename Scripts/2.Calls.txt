@@ -2,9 +2,9 @@ In the last episode we went over how the structure of a method. But today, I wan
 
 -- Intro sequence --
 
-A call occurs whenever the conductor shouts "Bob" or "Single" in order to change what each bell does next. A call can happen at the end of any lead, and typically changes the lead end change. For example, in plain bob doubles if a call was made instead of making this change you would make this change. This then changes the lead head of the next lead.
+A call occurs whenever the conductor shouts "Bob" or "Single" in order to change what each bell does next. A call can happen at the end of any lead, and typically modifies the lead end change. For example, in plain bob doubles if a call was made then instead of making this change you would make this change. This then changes the lead head of the next lead and so what the bells are doing next.
 
-In plain bob doubles this means that if a call was made, instead of the 2 becoming 4ths place bell, it instead hunts in and becomes second place bell, so it does next what the 3 would have done if there wasn't a call. In our circle of work this can be visualised as this transition.
+In plain bob doubles this means that if a call was made, instead of the 2 becoming 4ths place bell, it instead hunts in and becomes second place bell, so it does next what the 3 would have done if there wasn't a call. In our circle of work this can be visualised as doing this transition instead of the normal rotation.
 
 Now something important to note is that if we now keep having plain leads the closest we could get to rounds is this row, but we can never actually get back to rounds. This is because the call has sent us to a different "course". For the plain course the "course head" is just rounds, however in this new course where we can never get back to rounds the course head is this.
 
@@ -12,6 +12,20 @@ If we look closer at the effect of the call we can see why this occurs. The 2 ha
 
 The effect of all this is that to successfuly call a touch of a method you need to navigate these course heads to get you back into the plain course and back to rounds, while not repeating any rows too many times and getting some nice musical rows.
 
+So lets look at what you have to do at each call in plain bob doubles and why. If you are 5ths place bell and so are about to dodge 3/4 up, you instead make a place at the lead end change. This makes you 4ths place bell, and 4ths place bell starts by hunting in and then doing 4 blows behind. So essentially this is your line, you make 4ths and then do 4 blows behind next time as you are now 4ths place bell.
+If you are 3rds place bell instead of making seconds you hunt out and become thirds place bell, and so make second next time. If you are 2nds place bell instead of dodging 3/4 down you hunt in and become 2nds place bell, thus it is as if you are finishing making seconds and so do 3/4 down next time.
+Finally if you are 4ths place bell the call does not effect you, and so since your place bell has not changed you just do what you would have done before.
+
 To keep track of where to call calls, conductors can use calling positions. Each place bell has a different calling position which describes where the conductors bell would be at the end of that lead should a call be made.
 
-If, with a call, your bell ends up in the last place it is known as a call at "home". If you end up at a place one from the right its known as wrong if you have an even stage and middle if you have an odd stage. If you end up at a place two from the right it is the opposite, a middle for an even stage and a wrong for an odd stage. This definition isn't perfectly agreed upon and some publications may treat middle as always being two from the back and wrong as always being one from the back, so be careful. The reason for swapping these around is quite subtle and I'll explain it in more detail in the future.
+If, with a call, your bell ends up in the last place it is known as a call at "home". If you end up at a place one from the back its known as wrong if you have an even stage and middle if you have an odd stage. If you end up at a place two from the back it is the opposite, a middle for an even stage and a wrong for an odd stage. This definition isn't perfectly agreed upon and some publications may treat middle as always being two from the back and wrong as always being one from the back, so be careful. The reason for swapping these around is quite subtle and I'll explain it in more detail in the future.
+
+Next is before. If your bell ends up in 3rds place and the call does not have a bell making seconds place this is known as before. If a bell is making seconds place and you end up in 2nds place then it is also before.
+The rest of the calling positions are quite simple, in if you end up in 2nds place, out if you end up in 3rds place and the rest just correspond to their number (thirds, fourths, fifths and so on). These calls are less common for reasons i'll explain later.
+
+Lets look at a simple composition for plain bob doubles. This is the form typically used to show compositions. Calling positions are shown at the top, bobs are shown with dashes and singles are shown with an s. A number before a 
+
+
+
+- Why are those other calls less common
+Default calls (near and far)
