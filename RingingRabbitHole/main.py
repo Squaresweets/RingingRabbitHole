@@ -12,7 +12,18 @@ class First_scene(Scene):
 
         table.scale_to_fit_height(config.frame_height * 0.9)
         table.move_to(ORIGIN)
-        self.play(Write(table), run_time=1)
+
+        points = []
+        for i,row in enumerate(line.indexes):
+            entry = table.get_entries((i+1,row[1]+1))
+            points.append(entry.get_center())
+            entry.set_opacity(False)
+
+        path = VMobject()
+        path.set_points_as_corners([*points])
+        path.set_color(RED)
+
+        self.play(Write(table, rate_func=smoothstep), Create(path, rate_func=smoothstep), run_time=1)
 
 
 class Second_scene(Scene):
