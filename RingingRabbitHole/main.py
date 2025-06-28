@@ -1,29 +1,28 @@
 from manim import *
 from BellEnd.LineGenerator import *
+from LineObject import *
 
 class First_scene(Scene):
     def construct(self):
-        m = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+        # m = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+        m = Method(8,"x38x14x1258x36x14x58x16x78,12",Calls("145","123",0,10,1),0,32)
         line = LineGenerator.generate_line([m], Composition(),1)
 
-        table_data = [[str(b) for b in row] for row in line.positions]
-        table = Table(table_data, h_buff=0.2, v_buff=0.2)
-        table.remove(*table.get_horizontal_lines(), *table.get_vertical_lines())
+        lobject = LineObject(line)
 
-        table.scale_to_fit_height(config.frame_height * 0.9)
-        table.move_to(ORIGIN)
+        lobject.scale_to_fit_height(config.frame_height * 0.9)
+        lobject.move_to(ORIGIN)
 
-        points = []
-        for i,row in enumerate(line.indexes):
-            entry = table.get_entries((i+1,row[1]+1))
-            points.append(entry.get_center())
-            entry.set_opacity(False)
+        lobject.set_line_visible(3, True)
 
-        path = VMobject()
-        path.set_points_as_corners([*points])
-        path.set_color(RED)
-
-        self.play(Write(table, rate_func=smoothstep), Create(path, rate_func=smoothstep), run_time=1)
+        # self.add(lobject)
+        self.play(lobject.reveal())
+        self.play(lobject.animate_line_visible(5, True))
+        self.play(lobject.table.animate(lag_ratio=0.01).shift(LEFT*2))
+        self.play(lobject.animate_line_visible(3, False))
+        # self.play(AnimationGroup(*[Flash(l) for l in lobject.get_bell_text_entries(2)], lag_ratio=0.1))
+        self.play(lobject.unreveal())
+        self.wait()
 
 
 class Second_scene(Scene):

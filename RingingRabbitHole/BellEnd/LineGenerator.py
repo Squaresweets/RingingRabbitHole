@@ -18,7 +18,7 @@ class Calls:
         self.every = every
         self.cover = cover
 
-class Line:
+class MethodLine:
     def __init__(self, positions, indexes, notation, stage):
         self.positions = positions
         self.indexes = indexes
@@ -56,7 +56,7 @@ class LineGenerator:
         initial_stage = max(m.stage for m in methods)
 
         notation_parts = split_notation(expand_notation(lg.m.notation))
-        lg.line = Line([], [], notation_parts, initial_stage)
+        lg.line = MethodLine([], [], notation_parts, initial_stage)
         if not composition.plain:
             lg.line.notation = []
 
