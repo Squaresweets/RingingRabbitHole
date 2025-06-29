@@ -32,12 +32,19 @@ class LineObject(Mobject):
         #Add in the ruleoffs
         self.ruleoffs = VGroup()
         self.add(self.ruleoffs)
+        def make_ruleoff_updater(h):
+            def ruleoff_updater(mob):
+                positions = [(self.get_bell_dummy_entry((h,0)).get_center() +
+                              self.get_bell_dummy_entry((h+1,0)).get_center())/2,
+                             (self.get_bell_dummy_entry((h,self.line.stage-1)).get_center() +
+                              self.get_bell_dummy_entry((h+1,self.line.stage-1)).get_center())/2]
+                mob.set_points_as_corners(positions)
+            return ruleoff_updater
         for h in self.line.ruleoffs:
-            anchor = self.get_bell_dummy_entry((h,0))
-            positions = [anchor.get_center() + (0,-GRID_SPACING/2,0),
-                         anchor.get_center() + ((self.line.stage-1)*GRID_SPACING,-GRID_SPACING/2,0)]
-            p = VMobject(stroke_opacity=0.7).set_points_as_corners(positions)
-            p.add_updater(tie_position_to(anchor, p.get_center()-anchor.get_center())) # Need to work out a better way
+            if h > len(self.line.positions) or h < 0:
+                continue
+            p = VMobject(stroke_opacity=0.7)
+            p.add_updater(make_ruleoff_updater(h))
             p.update()
             self.ruleoffs.add(p)
         

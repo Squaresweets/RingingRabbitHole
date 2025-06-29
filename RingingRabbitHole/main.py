@@ -4,9 +4,9 @@ from LineObject import *
 
 class First_scene(Scene):
     def construct(self):
-        # m = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
-        m = Method(8,"x38x14x1258x36x14x58x16x78,12",Calls("145","123",0,10,1),0,32)
-        line = LineGenerator.generate_line([m], Composition(),1)
+        m = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+        # m = Method(8,"x38x14x1258x36x14x58x16x78,12",Calls("145","123",0,10,1),0,32)
+        line = LineGenerator.generate_line([m], Composition())
 
         lobject = LineObject(line)
 
@@ -18,9 +18,10 @@ class First_scene(Scene):
         # self.add(lobject)
         self.play(lobject.reveal())
         self.play(lobject.animate_line_visible(5, True))
-        self.play(lobject.table.animate(lag_ratio=0.01).shift(LEFT*2))
+        # self.play(lobject.table.animate(lag_ratio=0.01).shift(LEFT*2))
+        self.play(lobject.animate.scale(4).to_edge(UP))
         self.play(lobject.animate_line_visible(3, False))
-        # self.play(AnimationGroup(*[Flash(l) for l in lobject.get_bell_text_entries(2)], lag_ratio=0.1))
+        # # self.play(AnimationGroup(*[Flash(l) for l in lobject.get_bell_text_entries(2)], lag_ratio=0.1))
         self.play(lobject.unreveal())
         self.wait()
 
