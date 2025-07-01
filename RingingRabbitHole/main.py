@@ -26,7 +26,8 @@ class First_scene(Scene):
         # self.play(lobject.table.animate.scale(4))
         self.play(lobject.animate_line_visible(2, True),
                   lobject.animate_line_visible(4, True),
-                  lobject.animate_line_visible(5, True),)
+                  lobject.animate_line_visible(5, True),
+                  lobject.animate_line_visible(3, False))
         # self.play(lobject.table.animate.arrange_in_grid(cols=line.stage, buff=0.15))
         center = lobject.get_center()
         self.play(*[l.animate.move_to(center) for l in lobject.leads])
