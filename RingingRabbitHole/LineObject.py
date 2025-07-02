@@ -16,19 +16,9 @@ class LineObject(Mobject):
 
         #Create all the dummy objects that we use as anchors and stuff
         self.anchors = Group()
-        # self.anchors.add(*[Point().set_z_index(-1000) for _ in self.table_data]) #Create dummy objects for all the positions
-        self.anchors.add(*[Circle().scale(0.05).set_z_index(-1000) for _ in self.table_data]) #Create dummy objects for all the positions
+        self.anchors.add(*[Point().set_z_index(-1000) for _ in self.table_data]) #Create dummy objects for all the positions
         self.anchors.arrange_in_grid(cols=self.stage, buff=GRID_SPACING)
         self.add(self.anchors)
-
-        leLen = len(line.notation) * line.stage
-        self.leads = Group(
-            Group(*self.anchors[:leLen+line.stage]),
-            *[
-                Group(*self.anchors[i:i + leLen])
-                for i in range(leLen+line.stage, len(self.anchors), leLen)
-            ]
-        )
 
         #Bell texts
         #Put the actual text in, tied to the position of the dummies
@@ -40,10 +30,6 @@ class LineObject(Mobject):
             self.add(t)
             self.bell_texts[bell_num-1].add(t)
             self.all_bell_texts.add(t)
-
-            #check if second in lead
-            if (i//self.stage)%len(line.notation) == 1 and (i//self.stage) != 1:
-                t.add_secondary_bell(self.bell_texts[bell_num-1][-2].get_anchor_position())
 
         #Add in the ruleoffs
         self.ruleoffs = VGroup()
@@ -82,7 +68,6 @@ class LineObject(Mobject):
                     else:
                         mob.add_line_to(positions[i])
             return line_updater
-
         for b in range(line.stage):
             l = self.bell_lines[b]
 
@@ -105,10 +90,7 @@ class LineObject(Mobject):
         return self.bell_texts[bell-1][row]
     
     def get_bell_text_entries(self, bell):
-        positions = []
-        for bt in self.bell_texts[bell-1]:
-            positions.extend(bt.get_primary_and_secondary())
-        return positions
+        return self.bell_texts[bell-1]
 
     def get_anchor_from_pos(self, pos): 
         return self.anchors[pos[1]+pos[0]*self.stage]
@@ -117,12 +99,19 @@ class LineObject(Mobject):
         bellEntries = self.get_bell_text_entries(bell)
         for e in bellEntries:
             e.primary_text.set_opacity(visible)
+        return self
     
     def set_line_visible(self, bell, visible, also_change_numbers=True):
         self.bell_lines[bell-1].set_opacity(visible)
         self.bell_lines[bell-1].set_fill(opacity=0)
         if also_change_numbers:
             self.set_bell_visible(bell, not visible)
+        return self
+    
+    def get_top_left_pos(self):
+        return self.anchors[0].get_center()
+    def get_bottom_left_pos(self):
+        return self.anchors[-self.stage].get_center()
     
     def animate_line_visible(self, bell, visible):
         if visible:
@@ -141,18 +130,23 @@ class LineObject(Mobject):
         sequence = [Write(self.all_bell_texts, rate_func=smoothstep, run_time=1),
                     *[Create(l, rate_func=smoothstep, run_time=1) for l in self.bell_lines],
                     *[Create(l, rate_func=smoothstep, run_time=1) for l in self.ruleoffs]]
-                    # *[Write(self.get_horizontal_lines())]]
         return AnimationGroup(*sequence, lag_ratio=0)
 
     def unreveal(self):
         sequence = [Unwrite(self.all_bell_texts, rate_func=smoothstep, run_time=1),
                     *[Uncreate(l, rate_func=smoothstep, run_time=1) for l in self.bell_lines],
                     *[Uncreate(l, rate_func=smoothstep, run_time=1) for l in self.ruleoffs]]
-                    # *[Write(self.get_horizontal_lines())]]
         return AnimationGroup(*sequence, lag_ratio=0)
     
-    def horizontal_leads(self):
-        for bt in self.all_bell_texts:
-            bt.show_extra_lead_head()
-        return self.leads.animate.arrange(direction=RIGHT, buff=0.5)
-    
+    def animate_to_new_composition(self, new_line):
+        self.table_data = [b for row in new_line.positions for b in row]
+        animations = []
+
+        self.bell_texts = [VGroup() for _ in range(self.stage)] #Vgroup of vgroups of bells, each bell has its own vgroup, 0 indexed
+        for i,b in enumerate(self.table_data):
+            animations.append(self.all_bell_texts[i].animate.change_num(b, 1-self.bell_lines[b-1].get_stroke_opacity()))
+            self.bell_texts[b-1].add(self.all_bell_texts[i])
+        for l in self.bell_lines:
+            animations.append(l.animate.update())
+
+        return AnimationGroup(*animations)

@@ -11,9 +11,9 @@ class Method:
         self.ruleoffsEvery = ruleoffsEvery
 
 class Calls:
-    def __init__(self, bobNotation, singleNotation, start, every, cover):
-        self.bobNotation = split_notation(bobNotation)
-        self.singleNotation = split_notation(singleNotation)
+    def __init__(self, bob_notation, single_notation, start, every, cover):
+        self.bob_notation = split_notation(bob_notation)
+        self.single_notation = split_notation(single_notation)
         self.start = start
         self.every = every
         self.cover = cover
@@ -33,12 +33,21 @@ class MethodLine:
     def Len(self):
         return len(self.positions)
 
-class Composition:
-    def __init__(self):
-        self.plain = True #For now
-        self.dont_stop_till_end_of_comp = False
-        self.num_rounds = -1
+class CompositionPart:
+    def __init__(self, touchType, callingPos="", id_str=''):
+        self.touch_type = 'b' if touchType in ('', '-') else touchType
+        self.calling_pos = callingPos
+        self.splice_id = -1 if id_str == '' else int(id_str)
 
+class Composition:
+    def __init__(self, observationBell, notation, num_rounds=-1, dont_stop_till_end_of_comp=False):
+        self.plain = len(notation) == 0
+        self.observationBell = observationBell
+        self.num_rounds = num_rounds
+        self.dont_stop_till_end_of_comp = dont_stop_till_end_of_comp
+        self.comp_notation = notation
+    def plain():
+        return Composition(-1, [])
 
 class LineGenerator:
     line = None
@@ -48,7 +57,7 @@ class LineGenerator:
     m = None
 
     @staticmethod
-    def generate_line(methods, composition, lead_end_cap=-1):
+    def generate_line(methods, composition = Composition.plain(), lead_end_cap=-1, initial_row=None):
         lg = LineGenerator
         lg.m = methods[0]
 
@@ -60,7 +69,8 @@ class LineGenerator:
         if not composition.plain:
             lg.line.notation = []
 
-        lg.initialBells = list(range(1, initial_stage + 1))
+
+        lg.initialBells = list(range(1, initial_stage + 1)) if initial_row == None else initial_row.copy()
         lg.bells = lg.initialBells[:]
         lg.indexBells = [0] + lg.bells[:]
         lg.insert_bells_into_line()
@@ -87,10 +97,10 @@ class LineGenerator:
                     c = composition.comp_notation[comp_call_counter]
                     cover = lg.m.calls.cover
                     touch_not = [''] * cover
-                    if c.touch_type == 'b' and lg.m.calls.bobNotation:
-                        touch_not = lg.m.calls.bobNotation
-                    elif c.touch_type == 's' and lg.m.calls.singleNotation:
-                        touch_not = lg.m.calls.singleNotation
+                    if c.touch_type == 'b' and lg.m.calls.bob_notation:
+                        touch_not = lg.m.calls.bob_notation
+                    elif c.touch_type == 's' and lg.m.calls.single_notation:
+                        touch_not = lg.m.calls.single_notation
                     else:
                         touch_not = notation_parts[i:i + cover]
                         c.touch_type = 'p'
@@ -134,7 +144,7 @@ class LineGenerator:
                         old_line_len += 1
 
             for idx, val in enumerate(lg.bells):
-                if val != idx + 1 and val in lg.line.huntBells:
+                if val != lg.initialBells[idx] and val in lg.line.huntBells:
                     lg.line.huntBells.remove(val)
 
             lg.line.placeBellPositions.append(lg.line.Len - 1)
