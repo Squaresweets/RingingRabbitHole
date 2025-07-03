@@ -117,11 +117,11 @@ class LineObject(Mobject):
         if visible:
             self.set_line_visible(bell, True, False)
             sequence = [Create(self.bell_lines[bell-1], rate_func=smoothstep, run_time=1),
-                    AnimationGroup(*[Unwrite(l.primary_text) for l in self.get_bell_text_entries(bell)], lag_ratio=0.1, run_time=1)]
+                    AnimationGroup(*[l.SUnwrite() for l in self.get_bell_text_entries(bell)], lag_ratio=0.1, run_time=1)]
         else:
             self.set_bell_visible(bell, True)
             sequence = [Uncreate(self.bell_lines[bell-1],rate_func=smoothstep, run_time=1),
-                    AnimationGroup(*[Write(l.primary_text) for l in reversed(self.get_bell_text_entries(bell))], lag_ratio=0.1, run_time=1)]
+                    AnimationGroup(*[l.SWrite() for l in reversed(self.get_bell_text_entries(bell))], lag_ratio=0.1, run_time=1)]
 
         return Succession(AnimationGroup(*sequence, lag_ratio=0),
                             UpdateFromFunc(None, lambda m: self.set_line_visible(bell, visible), run_time=0))

@@ -18,11 +18,22 @@ class BellText(VMobject):
         return self.anchor.get_center()
     
     def change_num(self, new_num, new_opacity):
-        self.remove(self.primary_text)
-
-        self.primary_text = Text(bell_value_to_string[new_num], font_size=FONT_SIZE)
+        #Hacky way to work out how much we have been scaled
+        scale = self.primary_text.width / Text(bell_value_to_string[self.num], font_size=FONT_SIZE).width
+        self.primary_text.become(Text(bell_value_to_string[new_num], font_size=FONT_SIZE).scale(scale))
         self.primary_text.set_opacity(new_opacity)
-        self.add(self.primary_text)
 
         self.num = new_num
         return self
+    
+    def SWrite(self):
+        # copy_to_animate = self.primary_text.copy()
+        # self.primary_text.set_opacity(False)
+        # return Succession(Write(copy_to_animate), UpdateFromFunc(None, lambda m: self.primary_text.set_opacity(True)))
+        return Write(self.primary_text)
+
+    def SUnwrite(self):
+        copy_to_animate = self.primary_text.copy()
+        self.primary_text.set_opacity(False)
+        # return Succession(Unwrite(copy_to_animate), UpdateFromFunc(None, lambda m: self.primary_text.set_opacity(False)))
+        return Unwrite(copy_to_animate)
