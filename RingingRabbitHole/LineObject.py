@@ -150,3 +150,6 @@ class LineObject(Mobject):
             animations.append(l.animate.update())
 
         return AnimationGroup(*animations)
+    
+    def get_row(self, row_num):
+        return VGroup(self.all_bell_texts[row_num*self.stage+i].primary_text.copy().set_opacity(1) for i in range(self.stage))

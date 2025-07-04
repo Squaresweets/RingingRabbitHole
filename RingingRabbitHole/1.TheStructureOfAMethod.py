@@ -108,3 +108,126 @@ class paragraph2(Scene):
         t2 = Text("Plain bob lead head:", font_size=20).next_to(grid, direction=RIGHT, buff=2).next_to(last_row, direction=DOWN*1.2)
         self.play(last_row2.animate.next_to(t2, direction=DOWN), Write(t2, run_time=.5))
         self.play(grid.unreveal(), Unwrite(grid_text), Unwrite(t, run_time=0.3), Unwrite(t2, run_time=0.3), Unwrite(last_row), Unwrite(last_row2))
+
+class paragraph3(Scene):
+    def construct(self):
+        texts = VGroup(Text("Making seconds:"), Text("Dodging:"), Text("Four blows behind:")).center().scale(0.7).shift(UP*3)
+        texts[0].shift(LEFT*4.5)
+        texts[2].shift(RIGHT*4.5)
+        self.play(Write(t, run_time=1) for t in texts)
+
+        seconds_line = VMobject(stroke_width=10).set_points_as_corners([(0,0,0), (1,-1,0), (1,-2,0), (1,-2,0)]).center().match_x(texts[0])
+        self.play(Create(seconds_line))
+        self.play(seconds_line.animate.set_points_as_corners([(0,0,0), (1,-1,0), (1,-2,0), (0,-3,0)]).center().match_x(texts[0]))
+        self.play(seconds_line.animate.set_points_as_corners([(0,0,0), (1,-1,0), (1,-2,0), (2,-3,0)]).center().match_x(texts[0]))
+
+        pb = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+        plain = LineObject(LineGenerator.generate_line([pb], lead_end_cap=2)).match_x(texts[0]).scale(1.5)
+        plain.set_line_visible(3, True)
+        self.play(plain.reveal(),
+                  seconds_line.animate.set_points_as_corners([plain.get_bell_text_entry(3,i).get_anchor_position() for i in range(8,12)]))
+        self.play(FadeOut(seconds_line))
+
+        up_dodge_line = VMobject(stroke_width=10).set_points_as_corners([(0,0,0),(0,0,0), (1,-1,0), (0,-2,0), (1,-3,0), (1,-3,0)]).scale(0.6).center()
+        down_dodge_line = up_dodge_line.copy().flip()
+        up_dodge_line.shift(LEFT*0.6)
+        down_dodge_line.shift(RIGHT*0.6)
+        up_text = Text("Up:").scale(0.5).next_to(up_dodge_line, direction=UP)
+        down_text = Text("Down:").scale(0.5).match_x(down_dodge_line).match_y(up_text)
+        self.play(Create(up_dodge_line), Create(down_dodge_line), Write(up_text, run_time=0.5), Write(down_text, run_time=0.5))
+
+        up_example = LineObject(LineGenerator.generate_line([pb], lead_end_cap=2)).scale(1.5)
+        up_example.set_line_visible(5, True)
+        self.play(up_example.reveal(),
+                  up_dodge_line.animate.set_points_as_corners([up_example.get_bell_text_entry(5,i).get_anchor_position() for i in range(7,13)]),
+                  Unwrite(down_text), Uncreate(down_dodge_line), Unwrite(up_text))
+        arrow = Arrow(start=.2*LEFT, end=.2*RIGHT).next_to(up_example.all_bell_texts[35], direction=LEFT, buff=0.1)
+        self.play(FadeIn(arrow, run_time=0.2))
+        for i in range(40, 61, 5):
+            self.play(arrow.animate(run_time=0.3).next_to(up_example.all_bell_texts[i], direction=LEFT, buff=0.1))
+        self.play(FadeOut(arrow, run_time=0.2), FadeOut(up_dodge_line))
+
+        right = Arrow(start=.2*LEFT, end=.2*RIGHT).scale(2).next_to(up_example, direction=DOWN)
+        up_text = Text("Up/Out").scale(0.6).next_to(right, direction=RIGHT)
+
+        left = right.copy().flip().next_to(right, direction=DOWN)
+        down_text = Text("Down/In").scale(0.6).next_to(left, direction=LEFT)
+        self.play(Create(left), Write(down_text), Create(right), Write(up_text))
+
+        self.play(Uncreate(left), Unwrite(down_text), Uncreate(right), Unwrite(up_text))
+        self.play(up_example.animate_line_visible(2, True))
+
+        fourths_line = VMobject(stroke_width=10).set_points_as_corners([(0,0,0), (1,-1,0), (1,-2,0), (1,-2,0), (1,-2,0), (0,-3,0)]).center().match_x(texts[2])
+        self.play(Create(fourths_line))
+
+        t = Text("Place").scale(0.7)
+        t.add_updater(lambda m: m.next_to(fourths_line, direction=DOWN))
+
+        self.play(Write(t, run_time=0.3))
+        self.play(fourths_line.animate.set_points_as_corners([(0,0,0), (1,-1,0), (1,-2,0), (1,-3,0), (1,-4,0), (0,-5,0)]).center().match_x(texts[2]),
+                  t.animate.become(Paragraph("Long place", "(4 blows)", alignment="center").scale(0.6)))
+
+        fourths_example = LineObject(LineGenerator.generate_line([pb], lead_end_cap=2)).scale(1.5).match_x(texts[2])
+        fourths_example.set_line_visible(4, True)
+        self.play(fourths_example.reveal(),
+                  fourths_line.animate.set_points_as_corners([fourths_example.get_bell_text_entry(4,i).get_anchor_position() for i in range(7,13)]),
+                  FadeOut(t))
+        self.play(FadeOut(fourths_line))
+
+        self.play(plain.unreveal(), up_example.unreveal(), fourths_example.unreveal(),
+                  *[Unwrite(t, run_time=1) for t in texts])
+
+class paragraph4(Scene):
+    def construct(self):
+        pb = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+        plain = LineObject(LineGenerator.generate_line([pb], lead_end_cap=1)).center().scale_to_fit_height(config.frame_height * 0.9)
+        plain.set_line_visible(5, True)
+        self.play(plain.reveal())
+        last_row = plain.get_row(10)
+        self.play(last_row.animate.center().scale(1.25), plain.unreveal())
+
+        m = Method(5,"5.1.5.1.5,125",Calls("1","123",0,10,1),0,10)
+        leadEnds = [[1,2,3,4,5],[1,3,5,2,4],[1,5,4,3,2],[1,4,2,5,3]]
+        lobjects = LineObjectGroup(*[LineObject(LineGenerator.generate_line([m], initial_row=le, lead_end_cap=1)) for le in leadEnds])
+        for right_of_rounds in lobjects:
+            right_of_rounds.set_line_visible(5, True)
+        lobjects.arrange_horizontally().update(1)
+        lobjects.scale_to_fit_width(config.frame_width * 0.8)
+
+        self.play(lobjects.reveal(), last_row.animate.become(lobjects[1].get_row(0)))
+        self.play(FadeOut(last_row))
+        
+        rounds_text = lobjects[0].get_row(0)
+        self.play(rounds_text.animate.center().to_edge(UP, buff=0.8).shift(LEFT*2).scale(1.2))
+        pblead_text = lobjects[1].get_row(0)
+        self.play(pblead_text.animate.center().to_edge(UP, buff=0.8).shift(RIGHT*2).scale(1.2))
+        # We need to align it vertically
+        right_of_rounds = rounds_text.get_right()
+        a = Arrow(right_of_rounds, [pblead_text.get_left()[0], right_of_rounds[1], 0])
+        self.play(Create(a))
+
+        fancyLines = VGroup()
+        for i in range(3):
+            p1b = lobjects[i].all_bell_texts[54].get_anchor_position() + RIGHT*0.4
+            p2b = lobjects[i+1].all_bell_texts[0].get_anchor_position() + LEFT*0.4
+            bezier = CubicBezier(p1b, p1b + .8 * RIGHT, p2b - .8 * RIGHT, p2b)
+            t1 = Triangle(color=WHITE, fill_opacity=1).scale(0.1).rotate(-PI/2).move_to(bezier.get_end())
+            t2 = Triangle(color=WHITE, fill_opacity=1).scale(0.1).rotate(PI/2).move_to(bezier.get_start())
+            fancyLines.add(bezier, t2, t1)
+        self.play(Create(fancyLines))
+        self.play(Uncreate(fancyLines))
+
+        self.play(Indicate(lobjects[0].bell_lines[4], color=RED), Indicate(rounds_text[4], color=RED))
+        self.play(Indicate(pblead_text[2], color=RED))
+
+        lead_head_positions = [5,3,2,4]
+        for i in range(1,4):
+            n = lead_head_positions[i]
+            pn = lead_head_positions[i-1]
+            self.play(lobjects[0].animate_line_visible(n, True), lobjects[0].animate_line_visible(pn, False))
+            fl = lobjects[0].bell_lines[n-1].copy().clear_updaters()
+            self.play(fl.animate.move_to(lobjects[i].bell_lines[n-1]))
+            self.play(FadeOut(fl))
+        self.play(lobjects[0].animate_line_visible(5, True), lobjects[0].animate_line_visible(4, False))
+
+        self.play(Unwrite(r), Unwrite(r2), Uncreate(a), lobjects.unreveal())
