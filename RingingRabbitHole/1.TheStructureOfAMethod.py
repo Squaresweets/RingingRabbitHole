@@ -196,7 +196,7 @@ class paragraph4(Scene):
 
         self.play(lobjects.reveal(), last_row.animate.become(lobjects[1].get_row(0)))
         self.play(FadeOut(last_row))
-        
+
         rounds_text = lobjects[0].get_row(0)
         self.play(rounds_text.animate.center().to_edge(UP, buff=0.8).shift(LEFT*2).scale(1.2))
         pblead_text = lobjects[1].get_row(0)
@@ -214,11 +214,11 @@ class paragraph4(Scene):
             t1 = Triangle(color=WHITE, fill_opacity=1).scale(0.1).rotate(-PI/2).move_to(bezier.get_end())
             t2 = Triangle(color=WHITE, fill_opacity=1).scale(0.1).rotate(PI/2).move_to(bezier.get_start())
             fancyLines.add(bezier, t2, t1)
-        self.play(Create(fancyLines))
-        self.play(Uncreate(fancyLines))
+        self.play(FadeIn(fancyLines))
+        self.play(FadeOut(fancyLines))
 
         self.play(Indicate(lobjects[0].bell_lines[4], color=RED), Indicate(rounds_text[4], color=RED))
-        self.play(Indicate(pblead_text[2], color=RED))
+        self.play(Indicate(lobjects[1].bell_lines[4], color=RED), Indicate(pblead_text[2], color=RED))
 
         lead_head_positions = [5,3,2,4]
         for i in range(1,4):
@@ -228,6 +228,173 @@ class paragraph4(Scene):
             fl = lobjects[0].bell_lines[n-1].copy().clear_updaters()
             self.play(fl.animate.move_to(lobjects[i].bell_lines[n-1]))
             self.play(FadeOut(fl))
+            if i == 1:
+                self.play(Unwrite(rounds_text), Unwrite(pblead_text), Uncreate(a))
         self.play(lobjects[0].animate_line_visible(5, True), lobjects[0].animate_line_visible(4, False))
 
-        self.play(Unwrite(r), Unwrite(r2), Uncreate(a), lobjects.unreveal())
+        # last_rounds = lobjects[3].get_row(10)
+        # self.play(FadeIn(last_rounds))
+        # self.play(Indicate(last_rounds))
+        # self.play(FadeOut(last_rounds))
+        self.play(Circumscribe(lobjects[3].all_bell_texts[3].primary_text))
+        c = Dot(point=lobjects[3].all_bell_texts[3].get_anchor_position())
+        self.play(FadeIn(c, run_time=0.3))
+        self.play(MoveAlongPath(c, lobjects[3].bell_lines[4]))
+        self.play(FadeOut(c, run_time=0.3))
+
+        placeBells = VGroup()
+        for i in range(4):
+            t = Text(str(lead_head_positions[i])).next_to(lobjects[i].all_bell_texts[4], direction=RIGHT).scale(0.7)
+            c = Circle(color=BLUE).scale(0.25).move_to(t)
+            placeBells.add(t, c)
+        self.play(Create(placeBells))
+
+        self.play(*[l.unreveal() for l in lobjects], *[Uncreate(p) for p in placeBells])
+
+class paragraph5(Scene):
+    def construct(self):
+        radius = 2.5
+        center = (-2,0,0)
+        seconds = Paragraph("Making", "seconds", alignment="center").move_to(center).shift(UP*radius)
+        down = Paragraph("3/4", "down", alignment="center").move_to(center).shift(RIGHT*radius)
+        fourths = Paragraph("4 blows", "behind", alignment="center").move_to(center).shift(DOWN*radius)
+        up = Paragraph("3/4", "up", alignment="center").move_to(center).shift(LEFT*radius)
+        texts = [seconds, down, fourths, up]
+
+        arcs = VGroup()
+        for i in range(4):
+            arcs.add(Arc(angle=-PI/6, start_angle=-PI/6-i*PI/2, radius=radius*1.2).shift(center).add_tip())
+
+        self.play(Write(t) for t in texts)
+        self.play(Create(a) for a in arcs)
+
+        #Line
+        pb = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+        plain = LineObject(LineGenerator.generate_line([pb])).scale(2.5)
+        leDist = plain.ruleoffs[0].get_y()-plain.ruleoffs[1].get_y()
+        plain.shift([4,-1.5*leDist,0])
+        for i in range(5):
+            plain.set_line_visible(i, True)
+
+        #Numbers
+        layoutCircle = Circle(radius=radius*0.5).move_to(center)
+        anchors = Group(*[Point().move_to(layoutCircle.point_from_proportion(0.25*i)).set_z_index(-1000) for i in range(4)])
+        self.add(anchors)
+        numbers = [2,3,5,4]
+        bell_texts = VGroup(*[BellText(numbers[i], anchors[i]).scale(4).set_color(BELL_COLORS[numbers[i]-2]) for i in range(4)])
+
+        self.add(bell_texts)
+        brace = Brace(Group(plain.all_bell_texts[45], plain.all_bell_texts[50]), direction=LEFT)
+        self.play(*[Write(b.primary_text) for b in bell_texts], plain.reveal(), FadeIn(brace))
+
+        rotate_texts = [Rotate(b, -PI/2, about_point=center) for b in anchors]
+        self.play(*rotate_texts, plain.animate.shift(UP*leDist)) #Do all the rotations
+        self.play(*rotate_texts, plain.animate.shift(UP*leDist))
+        self.play(*rotate_texts, plain.animate.shift(UP*leDist))
+        self.play(*rotate_texts, plain.animate.shift(DOWN*leDist*3))
+
+        lhs = [plain.get_row(i*10) for i in range(5)]
+        self.play(FadeIn(lhs[0]), FadeIn(lhs[1]), FadeOut(brace))
+        self.play(FadeOut(plain), lhs[0].animate.scale(1.5).set_y(1), lhs[1].animate.scale(1.5).set_y(-1))
+        for i in range(2,5):
+            lhs[i].scale(1.5).set_y(-1)
+
+        whereEachGoes = [0,3,1,4,2]
+        transitionLines = VGroup(*[Line(lhs[0][i].get_bottom(), lhs[1][whereEachGoes[i]].get_top(), buff=0.2) for i in range(5)])
+
+        self.play(Create(transitionLines[0]))
+        transitionLineCopies = VGroup()
+        #Initial line creation
+        for i in range(4):
+            c = arcs[[0,3,1,2][i]].copy()
+            transitionLineCopies.add(c)
+            self.play(c.animate.become(transitionLines[i+1]))
+        self.play(*rotate_texts, Indicate(lhs[1]))
+
+        #Up and down thing
+        copies = VGroup()
+        for i in range(3):
+            self.play(FadeOut(copies,run_time=0.1), FadeOut(lhs[i]),lhs[i+1].animate.shift(UP*2))
+            copies = VGroup(*[lhs[i+1][j].copy() for j in range(5)])
+            self.play(*[copies[j].animate.become(lhs[i+2][whereEachGoes[j]]) for j in range(5)], *rotate_texts)
+        self.play(FadeOut(lhs[3]), copies.animate.shift(UP), FadeOut(transitionLines), FadeOut(transitionLineCopies))
+
+        self.play(*[Unwrite(b.primary_text) for b in bell_texts], *[Unwrite(t) for t in texts], *[Uncreate(a) for a in arcs], Unwrite(copies))
+
+class paragraph6(Scene):
+    def construct(self):
+        pb = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+        plain = LineObject(LineGenerator.generate_line([pb]))
+        pbText = Text("One hunt bell:").scale(.5).next_to(plain, direction=UP)
+        self.play(plain.reveal())
+        self.play(Write(pbText, run_time=1))
+        self.play(plain.animate.shift(LEFT*3), pbText.animate.shift(LEFT*3))
+
+        #Banana Doubles
+        b = Method(5,"3.125.3,145.3",Calls("","",0,0,1),0,8)
+        banana = LineObject(LineGenerator.generate_line([b])).match_height(plain)
+        bText = Text("No hunt bell:").scale(.5).next_to(banana, direction=UP)
+        self.play(banana.reveal())
+        self.play(Write(bText, run_time=1))
+
+        #Banana Doubles
+        g = Method(5,"3,1.5.1.5.1",Calls("","",0,0,1),0,10)
+        grandsire = LineObject(LineGenerator.generate_line([g])).match_height(plain).shift(RIGHT*3)
+        gText = Text("Two hunt bells:").scale(.5).next_to(grandsire, direction=UP)
+        self.play(grandsire.reveal())
+        self.play(Write(gText, run_time=1))
+
+        self.play(plain.unreveal(), banana.unreveal(), grandsire.unreveal(), *[Unwrite(t) for t in [pbText, bText, gText]])
+
+class paragraph7(Scene):
+    def construct(self):
+        pb = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+        plain = LineObject(LineGenerator.generate_line([pb])).scale(2.7)
+        leDist = plain.ruleoffs[0].get_y()-plain.ruleoffs[1].get_y()
+        plain.shift([5,-.5*leDist,0])
+        for i in range(5):
+            plain.set_line_visible(i, True)
+        t = Paragraph("Thanks for watching!", "Created by Matthew Collier", line_spacing=.7)
+        t2 = Paragraph("Special thanks to:", "Mick Hutton for letting me borrow his microphone", "Jadd Virji for the support", "All ringers at St. Barnabas", "Everyone in the CUGCR", "", "", "Consider downloading my app \"Campana\" for more ringing fun!", line_spacing=.7).scale(0.5)
+        texts = VGroup(t, t2).arrange(direction=DOWN)
+        t.to_edge(LEFT).shift(UP)
+        t2.to_edge(LEFT).shift(UP)
+        campana = ImageMobject("Campana.png").scale(0.6).next_to(t2, direction=DOWN).to_edge(LEFT)
+        self.play(FadeIn(plain, run_time=2), Write(texts, run_time=2))
+        self.play(FadeIn(campana, run_time=0.5))
+        self.wait()
+
+class ammendment(Scene):
+    def construct(self):
+        #54 seconds
+        t = Text("*Without jump changes")
+        self.play(Write(t,run_time=0.5))
+        self.wait()
+        self.play(FadeOut(t))
+        self.wait()
+        #3:35:57
+        t = Paragraph("*If we didn't have the bottom row", "it would be harder to see, for", "example, that a bell is dodging")
+        self.play(Write(t,run_time=1))
+        self.wait()
+        self.play(FadeOut(t))
+        self.wait()
+        #6:02:22
+        t = Paragraph("*There are many other hunt bell", "groups and patterns possible!")
+        self.play(Write(t,run_time=1))
+        self.wait()
+        self.play(FadeOut(t))
+        self.wait()
+        #38:41
+        t = Paragraph("•Starts and ends with rounds", "•No repeated rows", "•Bells can only move a maximum of one position").scale_to_fit_width(config.frame_width * 0.9)
+        for l in t:
+            self.play(Write(l))
+        self.wait()
+        self.play(FadeOut(t))
+        self.wait()
+        #1:09:32
+        t = Paragraph("Below: Lead head", "Above: Lead end", "Change: Lead end change").scale_to_fit_width(config.frame_width * 0.9)
+        for l in t:
+            self.play(Write(l))
+        self.wait()
+        self.play(FadeOut(t))
+        self.wait()
