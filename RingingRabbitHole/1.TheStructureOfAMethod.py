@@ -219,6 +219,8 @@ class paragraph4(Scene):
 
         self.play(Indicate(lobjects[0].bell_lines[4], color=RED), Indicate(rounds_text[4], color=RED))
         self.play(Indicate(lobjects[1].bell_lines[4], color=RED), Indicate(pblead_text[2], color=RED))
+        # self.play(Indicate(lobjects[0].bell_lines[4].clear_updaters(), scale_factor=1.1, color=RED), Indicate(rounds_text[4], color=RED))
+        # self.play(Indicate(lobjects[1].bell_lines[4].clear_updaters(), scale_factor=1.1, color=RED), Indicate(pblead_text[2], color=RED))
 
         lead_head_positions = [5,3,2,4]
         for i in range(1,4):
