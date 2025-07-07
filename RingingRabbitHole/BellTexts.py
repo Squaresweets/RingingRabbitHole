@@ -37,3 +37,27 @@ class BellText(VMobject):
         self.primary_text.set_opacity(False)
         # return Succession(Unwrite(copy_to_animate), UpdateFromFunc(None, lambda m: self.primary_text.set_opacity(False)))
         return Unwrite(copy_to_animate)
+
+class CallText(VMobject):
+    def __init__(self, text, far_text, second_farthest, opacity):
+        super().__init__()
+        self.text_object = Text("-" + text, font_size=FONT_SIZE)
+        self.add(self.text_object)
+        self.text = text
+
+        def updater(m):
+            new_pos = 2*far_text.get_anchor_position()-second_farthest.get_anchor_position()
+            m.shift(new_pos - m.text_object.get_center())
+        self.add_updater(updater)
+        self.update()
+
+        self.text_object.set_opacity(opacity)
+    
+    def change_text(self, new_text, new_opacity):
+        #Hacky way to work out how much we have been scaled
+        scale = self.text_object.width / Text(bell_value_to_string[self.num], font_size=FONT_SIZE).width
+        self.text_object.become(Text(new_text, font_size=FONT_SIZE).scale(scale))
+        self.text_object.set_opacity(new_opacity)
+
+        self.text = new_text
+        return self

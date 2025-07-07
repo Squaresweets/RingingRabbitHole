@@ -52,6 +52,14 @@ class LineObject(Mobject):
             p.update()
             self.ruleoffs.add(p)
         
+        #Add in the call symbols
+        self.call_symbols = VGroup()
+        self.add(self.call_symbols)
+        for i in range(len(line.notation)-1, len(line.positions), len(line.notation)):
+            t = CallText("b", self.all_bell_texts[i*self.stage + self.stage-1], self.all_bell_texts[i*self.stage + self.stage-2], 1)
+            self.add(t)
+            self.call_symbols.add(t)
+        
         # Create all the bell lines
         self.bell_lines = [VMobject() for _ in range(line.stage)]
         bell_color_index = 0
@@ -106,6 +114,11 @@ class LineObject(Mobject):
         self.bell_lines[bell-1].set_fill(opacity=0)
         if also_change_numbers:
             self.set_bell_visible(bell, not visible)
+        return self
+
+    def set_all_lines_visible(self):
+        for i in range(self.stage):
+            self.set_line_visible(i+1, True)
         return self
     
     def get_top_left_pos(self):
