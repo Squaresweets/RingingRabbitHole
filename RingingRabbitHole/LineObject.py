@@ -53,12 +53,13 @@ class LineObject(Mobject):
             self.ruleoffs.add(p)
         
         #Add in the call symbols
-        self.call_symbols = VGroup()
-        self.add(self.call_symbols)
-        for i in range(len(line.notation)-1, len(line.positions), len(line.notation)):
-            t = CallText("b", self.all_bell_texts[i*self.stage + self.stage-1], self.all_bell_texts[i*self.stage + self.stage-2], 1)
+        self.labels = {}
+        for i,c in line.labels.items():
+            t = CallText(c, self.all_bell_texts[i*self.stage + self.stage-1], self.all_bell_texts[i*self.stage + self.stage-2], 1)
+            
             self.add(t)
-            self.call_symbols.add(t)
+            self.labels[i] = t
+
         
         # Create all the bell lines
         self.bell_lines = [VMobject() for _ in range(line.stage)]
@@ -142,13 +143,15 @@ class LineObject(Mobject):
     def reveal(self):
         sequence = [Write(self.all_bell_texts, rate_func=smoothstep, run_time=1),
                     *[Create(l, rate_func=smoothstep, run_time=1) for l in self.bell_lines],
-                    *[Create(l, rate_func=smoothstep, run_time=1) for l in self.ruleoffs]]
+                    *[Create(l, rate_func=smoothstep, run_time=1) for l in self.ruleoffs],
+                    *[Create(l, rate_func=smoothstep, run_time=1) for l in self.labels.values()]]
         return AnimationGroup(*sequence, lag_ratio=0)
 
     def unreveal(self):
         sequence = [Unwrite(self.all_bell_texts, rate_func=smoothstep, run_time=1),
                     *[Uncreate(l, rate_func=smoothstep, run_time=1) for l in self.bell_lines],
-                    *[Uncreate(l, rate_func=smoothstep, run_time=1) for l in self.ruleoffs]]
+                    *[Uncreate(l, rate_func=smoothstep, run_time=1) for l in self.ruleoffs],
+                    *[FadeOut(l, rate_func=smoothstep, run_time=1) for l in self.labels.values()]]
         return AnimationGroup(*sequence, lag_ratio=0)
     
     def animate_to_new_composition(self, new_line):
@@ -161,6 +164,25 @@ class LineObject(Mobject):
             self.bell_texts[b-1].add(self.all_bell_texts[i])
         for l in self.bell_lines:
             animations.append(l.animate.update())
+        for i,b in enumerate(self.table_data):
+            animations.append(self.all_bell_texts[i].animate.change_num(b, 1-self.bell_lines[b-1].get_stroke_opacity()))
+
+        new_call_symbols = {}
+        scale = self.all_bell_texts[0].get_scale()
+        for i,c in self.labels.items():
+            if i in new_line.labels:
+                animations.append(c.animate.change_text(new_line.labels[i], 1))
+                new_call_symbols[i] = c
+            else:
+                animations.append(FadeOut(c))
+        for i,c in new_line.labels.items():
+            if i in self.labels.keys():
+                continue #we have already animated that one
+            t = CallText(c, self.all_bell_texts[i*self.stage + self.stage-1], self.all_bell_texts[i*self.stage + self.stage-2], 1).scale(scale)
+            animations.append(FadeIn(t))
+            self.add(t)
+            new_call_symbols[i] = t
+        self.labels = new_call_symbols
 
         return AnimationGroup(*animations)
     

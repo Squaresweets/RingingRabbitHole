@@ -17,10 +17,12 @@ class BellText(VMobject):
     def get_anchor_position(self):
         return self.anchor.get_center()
     
+    def get_scale(self):
+        return self.primary_text.width / Text(bell_value_to_string[self.num], font_size=FONT_SIZE).width
+    
     def change_num(self, new_num, new_opacity):
         #Hacky way to work out how much we have been scaled
-        scale = self.primary_text.width / Text(bell_value_to_string[self.num], font_size=FONT_SIZE).width
-        self.primary_text.become(Text(bell_value_to_string[new_num], font_size=FONT_SIZE).scale(scale))
+        self.primary_text.become(Text(bell_value_to_string[new_num], font_size=FONT_SIZE).scale(self.get_scale()))
         self.primary_text.set_opacity(new_opacity)
 
         self.num = new_num
@@ -41,22 +43,25 @@ class BellText(VMobject):
 class CallText(VMobject):
     def __init__(self, text, far_text, second_farthest, opacity):
         super().__init__()
-        self.text_object = Text("-" + text, font_size=FONT_SIZE)
+        self.text_object = Text(text, font_size=FONT_SIZE, color=GRAY_B)
         self.add(self.text_object)
         self.text = text
 
         def updater(m):
-            new_pos = 2*far_text.get_anchor_position()-second_farthest.get_anchor_position()
+            new_pos = 2.2*far_text.get_anchor_position()-1.2*second_farthest.get_anchor_position()
             m.shift(new_pos - m.text_object.get_center())
+            m.move_to(new_pos)
         self.add_updater(updater)
         self.update()
 
         self.text_object.set_opacity(opacity)
     
+    def get_scale(self):
+        return self.text_object.width / Text(self.text, font_size=FONT_SIZE).width
+    
     def change_text(self, new_text, new_opacity):
         #Hacky way to work out how much we have been scaled
-        scale = self.text_object.width / Text(bell_value_to_string[self.num], font_size=FONT_SIZE).width
-        self.text_object.become(Text(new_text, font_size=FONT_SIZE).scale(scale))
+        self.text_object.become(Text(new_text, font_size=FONT_SIZE).scale(self.get_scale()))
         self.text_object.set_opacity(new_opacity)
 
         self.text = new_text
