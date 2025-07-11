@@ -240,3 +240,30 @@ class paragraph4(Scene):
 
         self.play(first.animate.move_to(line.get_row(19)).scale(.5), copies.animate.move_to(line.get_row(0)).scale(.5), FadeOut(transitionLines))
         self.play(FadeOut(first), FadeOut(copies))
+
+
+        #Explanation:
+        lines = [
+            r"To explain this I first need to first define some notation:",
+            r"A capital letter is a row. It can also be thought of as a permutation if you think of it as a permutation from rounds to that row. $XY$ is applying permutation $X$ to row $Y$. $I$ is rounds, also known as the identity row. Exponentiation means repeated application. $X^0=I$, $X^1=X$, $X^2=XX$, etc. $X^{-1}$ means the inverse permutation of X, such that $X^{-1}X=I$. $H$ is the first lead head of plain bob doubles. $A$ is the row we looked at in the previous section. Note that permutations do not commute (we cannot guarantee $XY=YX$).",
+            r"So what we just visualised can be written as $H^xA^{-1}I$ where $H^x$ involves going forward $x$ leads until we get to the course head",
+            r"The new row we are looking at is $B$, where $B=AH^n$ for some $n$.",
+            r"Applying the same method as above:",
+            r"$H^xB^{-1}I=H^x(AH^n)^{-1}I=H^xH^{-n}A^{-1}I=H^xA^{-1}I$ by absorbing $-n$ into the $x$ term.",
+            r"And thus these two methods give the same solution as a course only has one course head. Don't worry if you don't get this now, I'll go into much more detail about this in the future"
+        ]
+
+        paragraph = VGroup(
+            *[Tex(line, tex_environment="flushleft") for line in lines]
+        ).arrange(DOWN, aligned_edge=LEFT).scale(0.64).to_edge(LEFT)
+        
+        plain_line = lg.generate_line([pb])
+        line = LineObject(plain_line).set_line_visible(5, True).scale_to_fit_height(config.frame_height * 0.9).to_edge(RIGHT)
+        bits = VGroup()
+        for i in range(3):
+            bits.add(Text(["I","H","A"][i]).scale(0.4).next_to(line.all_bell_texts[[0,50,95][i]], direction=LEFT))
+            
+
+        self.play(Write(paragraph, run_time=1), line.reveal(), Write(bits, run_time=1))
+        self.play(Unwrite(paragraph, run_time=1), line.unreveal(), Unwrite(bits, run_time=1))
+        # self.add(paragraph, line, bits)
