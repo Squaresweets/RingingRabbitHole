@@ -240,6 +240,7 @@ class paragraph4(Scene):
 
         self.play(first.animate.move_to(line.get_row(19)).scale(.5), copies.animate.move_to(line.get_row(0)).scale(.5), FadeOut(transitionLines))
         self.play(FadeOut(first), FadeOut(copies))
+        self.play(line.unreveal())
 
 
         #Explanation:
@@ -265,5 +266,5 @@ class paragraph4(Scene):
             
 
         self.play(Write(paragraph, run_time=1), line.reveal(), Write(bits, run_time=1))
+        self.wait()
         self.play(Unwrite(paragraph, run_time=1), line.unreveal(), Unwrite(bits, run_time=1))
-        # self.add(paragraph, line, bits)
