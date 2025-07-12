@@ -5,6 +5,11 @@ from LineObject import *
 from LineObjectGroup import *
 
 pb = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+def arrange_into_circle(m, center, radius, angle_offset=0):
+    for i, item in enumerate(m.submobjects):
+        angle = -2 * PI * i / len(m.submobjects) + PI/2 + angle_offset
+        item.move_to(center + radius * np.array([np.cos(angle), np.sin(angle), 0]))
+    return m
 
 class paragraph1(Scene):
     def construct(self):
@@ -151,12 +156,6 @@ class paragraph2(Scene):
 
 class paragraph3(Scene):
     def construct(self):
-        def arrange_into_circle(m, center, radius, angle_offset=0):
-            for i, item in enumerate(m.submobjects):
-                angle = -2 * PI * i / len(m.submobjects) + PI/2 + angle_offset
-                item.move_to(center + radius * np.array([np.cos(angle), np.sin(angle), 0]))
-            return m
-        
         lhs = VGroup([Text(t) for t in ["12345", "13524", "15432", "14253"]])
         arrange_into_circle(lhs, ORIGIN, 2)
         arrows = VGroup(Arrow(lhs[i].get_center(), lhs[(i+1)%4].get_center(), buff=0.7) for i in range(4))
@@ -268,3 +267,101 @@ class paragraph4(Scene):
         self.play(Write(paragraph, run_time=1), line.reveal(), Write(bits, run_time=1))
         self.wait()
         self.play(Unwrite(paragraph, run_time=1), line.unreveal(), Unwrite(bits, run_time=1))
+
+class paragraph5(Scene):
+    def construct(self):
+        def create_circle(text_arr, location, radius):
+            lhs = VGroup([Text(t, color = RED if t[-1]=='5' else WHITE) for t in text_arr])
+            arrange_into_circle(lhs, location, radius)
+            arrows = [Arrow(lhs[i].get_center(), lhs[(i+1)%4].get_center(), buff=0.7) for i in range(4)]
+            return VGroup(*lhs, *arrows)
+
+        graph = VGroup()
+        graph.add(create_circle(["12345", "13524", "15432", "14253"], RIGHT*3+UP*2, 2).scale(0.6))
+        graph[0][6].set_opacity(0.3)
+        graph.add(create_circle(["15423", "14352", "13245", "12534"], RIGHT*3+DOWN*2, 2).scale(0.6))
+        graph[1][7].set_opacity(0.3)
+        graph.add(create_circle(["14235", "12543", "15324", "13452"], LEFT*3+DOWN*2, 2).scale(0.6))
+        graph[2][4].set_opacity(0.3)
+        graph.insert(1, Arrow(graph[0][2].get_center(), graph[1][0].get_center(), buff=.25, color=BLUE))
+        graph.insert(3, Arrow(graph[2][3].get_center(), graph[3][1].get_center(), buff=.75, color=BLUE))
+        graph.insert(5, Arrow(graph[4][0].get_center(), graph[0][3].get_center(), buff=.5, color=BLUE))
+        self.play(Write(graph))
+
+        path = Polygon(graph[0][0].get_center(), graph[0][1].get_center(), graph[0][2].get_center(),
+                       graph[2][0].get_center(), graph[2][1].get_center(), graph[2][2].get_center(), graph[2][3].get_center(),
+                       graph[4][1].get_center(), graph[4][2].get_center(), graph[4][3].get_center(), graph[4][0].get_center(),
+                       graph[0][3].get_center(), graph[0][0].get_center())
+        d = Dot(graph[0][0].get_center())
+        self.play(FadeIn(d))
+        self.play(MoveAlongPath(d, path, run_time=3, rate_func=linear))
+        self.play(FadeOut(d))
+        self.play(Unwrite(graph))
+
+class paragraph6(Scene):
+    def construct(self):
+        leadEnds = [[1,2,3,4,5],[1,3,5,2,4],[1,5,4,3,2],[1,4,2,5,3]]
+        lobjects = LineObjectGroup(*[LineObject(LineGenerator.generate_line([pb], initial_row=le, lead_end_cap=1)) for le in leadEnds])
+        for l in lobjects:
+            l.set_line_visible(5, True)
+        lobjects.arrange_horizontally().update(1)
+        lobjects.scale_to_fit_width(config.frame_width * 0.8)
+
+        texts = VGroup(Text(["Middle", "Out", "In", "Home"][i]).next_to(lobjects[i], direction=UP) for i in range(4))
+        self.play(lobjects.reveal(), Write(texts, run_time=1))
+        self.play(texts[1].animate.become(Text("Before").move_to(texts[1])))
+
+        l = lobjects[3]
+        t = texts[3]
+        self.play(*[FadeOut(lobjects[i]) for i in range(3)], *[FadeOut(texts[i]) for i in range(3)], t.animate.set_x(0), l.animate.set_x(0))
+
+        c = Composition(5, [CompositionPart("b")])
+        self.play(l.animate_to_new_composition(LineGenerator.generate_line([pb], c, 1, leadEnds[3])))
+        self.play(Circumscribe(l.get_bell_text_entry(5, 10)))
+        self.play(Indicate(t))
+
+        self.play(l.animate_to_new_composition(LineGenerator.generate_line([pb], c, 1, leadEnds[0])), t.animate.become(Text("Middle").move_to(t)))
+        self.play(Circumscribe(l.get_bell_text_entry(5, 10)))
+
+        pbm = Method(6,"x16x16x16,12",Calls("14","1234",0,12,1),0,12)
+        minor = LineObject(LineGenerator.generate_line([pbm], c, 1)).scale_to_fit_height(l.height).next_to(l, buff=1).set_line_visible(6, True).set_line_visible(2, False).set_line_visible(3, False)
+        minort = Text("Wrong").next_to(minor.bell_lines[5], direction=UP)
+        self.play(minor.reveal(), Write(minort, run_time=1))
+
+        self.play(l.animate_to_new_composition(LineGenerator.generate_line([pb], c, 1, leadEnds[1])),
+                  minor.animate_to_new_composition(LineGenerator.generate_line([pbm], c, 1, [1,3,5,2,6,4])),
+                  t.animate.match_x(minort), minort.animate.match_x(t))
+        
+        self.play(minort.animate.become(Text("Middle").move_to(minort)))
+        note = Text("It is to ensure coursing order permutations are consistent across odd and even stages.").scale(0.5).to_corner(DL)
+        self.play(Write(note, run_time=1))
+        
+        oldt = t.copy() #goofy
+        t.become(minort)
+        minort.become(oldt)
+        self.play(Unwrite(minort, run_time=1), minor.unreveal(), Unwrite(note, run_time=1), t.animate.become(Text("Before").move_to(t)))
+
+        cs = Composition(5, [CompositionPart("s")])
+        self.play(l.animate_to_new_composition(LineGenerator.generate_line([pb], cs, 1, leadEnds[1])))
+        self.play(Circumscribe(VGroup(l.get_bell_text_entry(5, 7), l.get_bell_text_entry(5, 8))))
+
+        for i in range(5):
+            self.play(l.animate_to_new_composition(LineGenerator.generate_line([pb], c, 1, leadEnds[[2, 1, 1, 0, 3][i]])), t.animate.become(Text(["In", "Out", "Thirds", "Fourths", "Fifths"][i]).move_to(t)))
+        self.play(l.unreveal(), Unwrite(t))
+
+class paragraph7(Scene):
+    def construct(self):
+        t = Table([["2345","M","O","I"],
+                   ["3245"," "," ","—"],
+                   ["4235"," ","—"," "],
+                   ["2345","—"," "," "]], include_outer_lines=True)
+        t.remove(*t.get_vertical_lines())
+        t.remove(*[t.horizontal_lines[i] for i in [0,3,4]])
+        self.play(Write(t))
+        t2 = Table([["2345","M","O","I"],
+                   ["3245"," "," ","s"],
+                   ["4235"," ","—"," "],
+                   ["2345","—"," "," "]], include_outer_lines=True)
+        t2.remove(*t2.get_vertical_lines())
+        t2.remove(*[t2.horizontal_lines[i] for i in [0,3,4]])
+        self.play(t.animate.become(t2))

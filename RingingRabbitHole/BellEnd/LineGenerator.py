@@ -151,6 +151,11 @@ class LineGenerator:
 
             lead_end_counter += 1
             if lead_end_cap != -1 and lead_end_counter >= lead_end_cap:
+                if lg.m.ruleoffsEvery: #SO HACKY BUT UGH I DONT CARE
+                    while old_line_len < lg.line.Len:
+                        if (old_line_len - rule_off_from) % lg.m.ruleoffsEvery == 0:
+                            lg.line.ruleoffs.append(old_line_len - 1)
+                        old_line_len += 1
                 return lg.line
 
             if lg.bells == lg.initialBells:
