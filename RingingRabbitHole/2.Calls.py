@@ -10,6 +10,11 @@ def arrange_into_circle(m, center, radius, angle_offset=0):
         angle = -2 * PI * i / len(m.submobjects) + PI/2 + angle_offset
         item.move_to(center + radius * np.array([np.cos(angle), np.sin(angle), 0]))
     return m
+def create_circle(text_arr, location, radius):
+    lhs = VGroup([Text(t, color = RED if t[-1]=='5' else WHITE) for t in text_arr])
+    arrange_into_circle(lhs, location, radius)
+    arrows = [Arrow(lhs[i].get_center(), lhs[(i+1)%4].get_center(), buff=0.7) for i in range(4)]
+    return VGroup(*lhs, *arrows)
 
 class paragraph1(Scene):
     def construct(self):
@@ -270,12 +275,6 @@ class paragraph4(Scene):
 
 class paragraph5(Scene):
     def construct(self):
-        def create_circle(text_arr, location, radius):
-            lhs = VGroup([Text(t, color = RED if t[-1]=='5' else WHITE) for t in text_arr])
-            arrange_into_circle(lhs, location, radius)
-            arrows = [Arrow(lhs[i].get_center(), lhs[(i+1)%4].get_center(), buff=0.7) for i in range(4)]
-            return VGroup(*lhs, *arrows)
-
         graph = VGroup()
         graph.add(create_circle(["12345", "13524", "15432", "14253"], RIGHT*3+UP*2, 2).scale(0.6))
         graph[0][6].set_opacity(0.3)
@@ -351,17 +350,57 @@ class paragraph6(Scene):
 
 class paragraph7(Scene):
     def construct(self):
-        t = Table([["2345","M","O","I"],
-                   ["3245"," "," ","—"],
-                   ["4235"," ","—"," "],
-                   ["2345","—"," "," "]], include_outer_lines=True)
-        t.remove(*t.get_vertical_lines())
-        t.remove(*[t.horizontal_lines[i] for i in [0,3,4]])
+        def create_comp(info):
+            t = Table(info, include_outer_lines=True)
+            t.remove(*t.get_vertical_lines())
+            t.remove(t.horizontal_lines[0])
+            t.remove(*[t.horizontal_lines[i] for i in range(3,len(info)+1)])
+            return t
+        t = create_comp([["2345","M","O","I"],
+                        ["3245"," "," ","—"],
+                        ["4235"," ","—"," "],
+                        ["2345","—"," "," "]])
         self.play(Write(t))
-        t2 = Table([["2345","M","O","I"],
-                   ["3245"," "," ","s"],
-                   ["4235"," ","—"," "],
-                   ["2345","—"," "," "]], include_outer_lines=True)
-        t2.remove(*t2.get_vertical_lines())
-        t2.remove(*[t2.horizontal_lines[i] for i in [0,3,4]])
-        self.play(t.animate.become(t2))
+        self.play(Circumscribe(VGroup(t.get_entries((1,i)) for i in [2,3,4])))
+
+        note = Text("These are not true compositions!").scale(0.5).to_corner(DL)
+        original = t.copy()
+        self.play(t.animate.become(
+            create_comp([["2345","M","O","I"],
+                         ["3245"," "," ","s"],
+                         ["3245"," ","—"," "],
+                         ["(2435)","—"," "," "]])), FadeIn(note))
+        self.play(t.animate.become(
+            create_comp([["2345","M","O","I"],
+                         ["2345"," "," ","2"],
+                         ["4325"," ","—"," "],
+                         ["3245","—"," "," "]])))
+        self.play(t.animate.become(
+            create_comp([["2345","M","O","I"],
+                         ["2435"," "," ","-ss"],
+                         ["3425"," ","—"," "],
+                         ["4235","—"," "," "]])))
+        self.play(t.animate.become(original), FadeOut(note))
+
+        graph = VGroup()
+        graph.add(create_circle(["12345", "13524", "15432", "14253"], RIGHT*3+UP*2, 2).scale(0.6))
+        graph[0][6].set_opacity(0.3)
+        graph.add(create_circle(["15423", "14352", "13245", "12534"], RIGHT*3+DOWN*2, 2).scale(0.6))
+        graph[1][7].set_opacity(0.3)
+        graph.add(create_circle(["14235", "12543", "15324", "13452"], LEFT*3+DOWN*2, 2).scale(0.6))
+        graph[2][4].set_opacity(0.3)
+        graph.insert(1, Arrow(graph[0][2].get_center(), graph[1][0].get_center(), buff=.25, color=BLUE))
+        graph.insert(3, Arrow(graph[2][3].get_center(), graph[3][1].get_center(), buff=.75, color=BLUE))
+        graph.insert(5, Arrow(graph[4][0].get_center(), graph[0][3].get_center(), buff=.5, color=BLUE))
+        self.play(FadeIn(graph), t.animate.scale(0.6).to_corner(UL))
+        self.play(*[t.get_entries((i,1)).animate.set_color(RED) for i in range(1,5)],
+                  t.get_entries((2,4)).animate.set_color(BLUE),
+                  t.get_entries((3,3)).animate.set_color(BLUE),
+                  t.get_entries((4,2)).animate.set_color(BLUE))
+
+        self.play(t.get_entries((1,1)).copy().animate(remover=True).move_to(graph[0][0][1:]))
+        self.play(t.get_entries((2,1)).copy().animate(remover=True).move_to(graph[2][2][1:]))
+        self.play(t.get_entries((3,1)).copy().animate(remover=True).move_to(graph[4][0][1:]))
+        self.play(t.get_entries((4,1)).copy().animate(remover=True).move_to(graph[0][0][1:]))
+
+        #iohh!
