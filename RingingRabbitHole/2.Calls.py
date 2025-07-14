@@ -15,6 +15,17 @@ def create_circle(text_arr, location, radius):
     arrange_into_circle(lhs, location, radius)
     arrows = [Arrow(lhs[i].get_center(), lhs[(i+1)%4].get_center(), buff=0.7) for i in range(4)]
     return VGroup(*lhs, *arrows)
+def create_comp(info, color_in = False):
+    t = Table(info, include_outer_lines=True, arrange_in_grid_config={"col_alignments":["l",*["c" for _ in range(len(info[0])-1)]]})
+    t.remove(*t.get_vertical_lines())
+    t.remove(t.horizontal_lines[0])
+    t.remove(*[t.horizontal_lines[i] for i in range(3,len(info)+1)])
+    if color_in:
+        for i in range(1, len(info)+1):
+            t.get_entries((i,1)).set_color(RED)
+            for j in range(2,len(info[0])+1):
+                t.get_entries((i,j)).set_color(BLUE)
+    return t
 
 class paragraph1(Scene):
     def construct(self):
@@ -350,12 +361,6 @@ class paragraph6(Scene):
 
 class paragraph7(Scene):
     def construct(self):
-        def create_comp(info):
-            t = Table(info, include_outer_lines=True)
-            t.remove(*t.get_vertical_lines())
-            t.remove(t.horizontal_lines[0])
-            t.remove(*[t.horizontal_lines[i] for i in range(3,len(info)+1)])
-            return t
         t = create_comp([["2345","M","O","I"],
                         ["3245"," "," ","—"],
                         ["4235"," ","—"," "],
@@ -390,7 +395,10 @@ class paragraph7(Scene):
         graph.add(create_circle(["14235", "12543", "15324", "13452"], LEFT*3+DOWN*2, 2).scale(0.6))
         graph[2][4].set_opacity(0.3)
         graph.insert(1, Arrow(graph[0][2].get_center(), graph[1][0].get_center(), buff=.25, color=BLUE))
-        graph.insert(3, Arrow(graph[2][3].get_center(), graph[3][1].get_center(), buff=.75, color=BLUE))
+
+        graph.insert(3, Square()) #Insanely dumb
+        graph[3] = always_redraw(lambda: Arrow(graph[2][3].get_center(), graph[4][1].get_center(), buff=.5, color=BLUE))
+
         graph.insert(5, Arrow(graph[4][0].get_center(), graph[0][3].get_center(), buff=.5, color=BLUE))
         self.play(FadeIn(graph), t.animate.scale(0.6).to_corner(UL))
         self.play(*[t.get_entries((i,1)).animate.set_color(RED) for i in range(1,5)],
@@ -403,4 +411,43 @@ class paragraph7(Scene):
         self.play(t.get_entries((3,1)).copy().animate(remover=True).move_to(graph[4][0][1:]))
         self.play(t.get_entries((4,1)).copy().animate(remover=True).move_to(graph[0][0][1:]))
 
-        #iohh!
+        new_table = create_comp([["2345","O","I"], ["3245"," ","—"], ["(2435)","—","—"]], True).scale(0.6).to_corner(UL)
+        new_circle = create_circle(["12435", "14523", "15342", "13254"], DOWN*2, 2).scale(0.6)
+        new_circle = create_circle(["15342", "13254", "12435", "14523"], DOWN*2, 2).scale(0.6)
+        self.play(graph[0].animate.shift(RIGHT),
+                  graph[1].animate.shift(RIGHT),
+                  graph[2].animate.shift(RIGHT),
+                  graph[4].animate.shift(RIGHT*3+UP*4),
+                  FadeOut(graph[5], run_time=0.5),
+                  FadeIn(new_circle))
+        new_arrow = Arrow(graph[4][2].get_center(), new_circle[0].get_center(), buff=.25, color=BLUE)
+        self.play(FadeIn(new_arrow),
+                  graph[4][6].animate.set_opacity(0.3),
+                  graph[4][7].animate.set_opacity(0.3),
+                  new_circle[5].animate.set_opacity(0.3),
+                  new_circle[6].animate.set_opacity(0.3),
+                  new_circle[7].animate.set_opacity(0.3),
+                  TransformMatchingShapes(t, new_table))
+
+        rounds = LineObject(LineGenerator.generate_line([pb], lead_end_cap=1, initial_row=[1,3,2,5,4])).scale(3).set_line_visible(5,True).next_to(new_table, direction=DOWN)
+
+        self.play(rounds.reveal())
+        copy = new_circle[1].copy()
+        self.play(copy.animate.become(rounds.get_row(0)))
+        self.play(FadeOut(copy))
+        self.play(Circumscribe(rounds.get_row(9)))
+        self.play(Circumscribe(new_table.get_entries((3,1))))
+
+class paragraph8(Scene):
+    def construct(self):
+        t = create_comp([
+            ["4253678", "M", "I", "T", "B", "F", "V", "W", "H"],
+            ["24536", "", "", "", "", "", "", "", "s-"],
+            ["43652", "", "", "s", "", "", "s", "", "—"],
+            ["(6473258)", "", "", "", "—", "—", "", "", ""],
+            ["(5726348)", "", "", "", "s", "—", "", "", ""],
+            ["2753468", "", "—", "", "", "—", "", "2", "-s"],
+            ["53742", "", "s", "", "", "", "2", "-s", ""],
+            ["", "", "", "", "etc.", "", "", "", ""],
+        ]).scale(0.5)
+        self.play(Write(t, run_time=1))
