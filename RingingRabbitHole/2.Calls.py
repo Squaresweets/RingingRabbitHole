@@ -420,6 +420,7 @@ class paragraph7(Scene):
                   graph[4].animate.shift(RIGHT*3+UP*4),
                   FadeOut(graph[5], run_time=0.5),
                   FadeIn(new_circle))
+        graph.remove(graph[5])
         new_arrow = Arrow(graph[4][2].get_center(), new_circle[0].get_center(), buff=.25, color=BLUE)
         self.play(FadeIn(new_arrow),
                   graph[4][6].animate.set_opacity(0.3),
@@ -438,9 +439,14 @@ class paragraph7(Scene):
         self.play(Circumscribe(rounds.get_row(9)))
         self.play(Circumscribe(new_table.get_entries((3,1))))
 
+        graph.add(new_arrow, new_circle)
+        graph[3].clear_updaters()
+        self.play(Unwrite(graph), Unwrite(new_table), rounds.unreveal())
+
 class paragraph8(Scene):
     def construct(self):
-        t = create_comp([
+        #https://complib.org/composition/140122
+        tm = create_comp([
             ["4253678", "M", "I", "T", "B", "F", "V", "W", "H"],
             ["24536", "", "", "", "", "", "", "", "s-"],
             ["43652", "", "", "s", "", "", "s", "", "—"],
@@ -450,4 +456,64 @@ class paragraph8(Scene):
             ["53742", "", "s", "", "", "", "2", "-s", ""],
             ["", "", "", "", "etc.", "", "", "", ""],
         ]).scale(0.5)
-        self.play(Write(t, run_time=1))
+        self.play(Write(tm, run_time=1))
+        self.wait()
+
+        t = create_comp([["2345","M","O","I"],
+                        ["3245"," "," ","—"],
+                        ["4235"," ","—"," "],
+                        ["2345","—"," "," "]])
+        self.play(TransformMatchingShapes(tm, t))
+        self.play(Circumscribe(t.get_entries((2,4))))
+        self.play(Circumscribe(t.get_entries((3,3))))
+        self.play(Circumscribe(t.get_entries((4,2))))
+        self.play(t.animate.shift(LEFT*2).scale(0.7))
+
+        c = Composition(5, Composition.from_notation("ppbpppbpppbp"))
+        line = LineObject(LineGenerator.generate_line([pb], c)).set_line_visible(5, True).scale(2.7)
+        leDist = line.ruleoffs[0].get_y()-line.ruleoffs[1].get_y()
+        line.shift([5,-5.5*leDist,0])
+        self.play(FadeIn(line))
+
+        #labels are at 29, 69, 109
+        self.play(line.anchors.animate.shift(UP*2.5*leDist))
+        self.play(t.get_entries((2,4)).copy().animate(remover=True).become(line.labels[29]))
+        self.play(line.anchors.animate.shift(UP*4*leDist))
+        self.play(t.get_entries((3,3)).copy().animate(remover=True).become(line.labels[69]))
+        self.play(line.anchors.animate.shift(UP*4*leDist))
+        self.play(t.get_entries((4,2)).copy().animate(remover=True).become(line.labels[109]))
+        self.play(line.anchors.animate.shift(UP*.5*leDist))
+
+import itertools
+class paragraph9(Scene):
+    def construct(self):
+        title = Text("Extent:").to_edge(UP)
+        definition = Text("The complete set of possible rows for a given set of bells").scale(0.5).next_to(title, direction=DOWN)
+        self.play(Write(title))
+        self.play(Write(definition))
+
+        perms = list(itertools.permutations([1, 2, 3, 4, 5]))
+        perm_texts = VGroup(Text(str("".join(map(str, p)))) for p in perms).arrange_in_grid(rows=10).scale(0.5).next_to(definition, direction=DOWN)
+        self.play(Write(perm_texts))
+
+        mafs = Tex(r"Number of rows = $5!=5*4*3*2*1=120$").next_to(perm_texts, direction=DOWN)
+        self.play(Write(mafs))
+
+        rounds = perm_texts[0]
+        self.play(*[FadeOut(t) for t in perm_texts[1:]], rounds.animate.scale(3).next_to(mafs, direction=UP))
+
+        options = Text("_ _ _ _ _").scale(3/2).next_to(rounds, direction=UP, buff=1)
+        self.play(Write(options))
+        self.play(Circumscribe(options[0]))
+        for i in range(5):
+            self.play(rounds[[2,0,3,1,4][i]].animate.move_to(options[i].get_center()+UP/2))
+
+        self.play(Unwrite(rounds), Unwrite(mafs, run_time=1), Unwrite(options))
+
+        title2 = Text("True:").next_to(definition, direction=DOWN)
+        definition2 = Paragraph("If a composition contains a number of extents and", "all additional rows are distinct", alignment="center").scale(0.5).next_to(title2, direction=DOWN)
+        self.play(Write(title2))
+        self.play(Write(definition2))
+
+        self.play(*[Unwrite(t) for t in [title, definition, title2, definition2]])
+

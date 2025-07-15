@@ -42,12 +42,14 @@ class CompositionPart:
 class Composition:
     def __init__(self, observationBell, notation, num_rounds=-1, dont_stop_till_end_of_comp=False):
         self.plain = len(notation) == 0
-        self.observationBell = observationBell
+        self.observation_bell = observationBell
         self.num_rounds = num_rounds
         self.dont_stop_till_end_of_comp = dont_stop_till_end_of_comp
         self.comp_notation = notation
     def plain():
         return Composition(-1, [])
+    def from_notation(notation):
+        return [CompositionPart(c) for c in notation]
 
 class LineGenerator:
     line = None
@@ -138,7 +140,7 @@ class LineGenerator:
                 i += 1
 
                 if lg.m.ruleoffsEvery:
-                    while old_line_len < lg.line.Len:
+                    while old_line_len <= lg.line.Len:
                         if (old_line_len - rule_off_from) % lg.m.ruleoffsEvery == 0:
                             lg.line.ruleoffs.append(old_line_len - 1)
                         old_line_len += 1
@@ -152,7 +154,7 @@ class LineGenerator:
             lead_end_counter += 1
             if lead_end_cap != -1 and lead_end_counter >= lead_end_cap:
                 if lg.m.ruleoffsEvery: #SO HACKY BUT UGH I DONT CARE
-                    while old_line_len < lg.line.Len:
+                    while old_line_len <= lg.line.Len:
                         if (old_line_len - rule_off_from) % lg.m.ruleoffsEvery == 0:
                             lg.line.ruleoffs.append(old_line_len - 1)
                         old_line_len += 1
