@@ -5,6 +5,7 @@ from LineObject import *
 from LineObjectGroup import *
 
 pb = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+pbm = Method(6,"x16x16x16,12",Calls("14","1234",0,12,1),0,12)
 def arrange_into_circle(m, center, radius, angle_offset=0):
     for i, item in enumerate(m.submobjects):
         angle = -2 * PI * i / len(m.submobjects) + PI/2 + angle_offset
@@ -333,7 +334,6 @@ class paragraph6(Scene):
         self.play(l.animate_to_new_composition(LineGenerator.generate_line([pb], c, 1, leadEnds[0])), t.animate.become(Text("Middle").move_to(t)))
         self.play(Circumscribe(l.get_bell_text_entry(5, 10)))
 
-        pbm = Method(6,"x16x16x16,12",Calls("14","1234",0,12,1),0,12)
         minor = LineObject(LineGenerator.generate_line([pbm], c, 1)).scale_to_fit_height(l.height).next_to(l, buff=1).set_line_visible(6, True).set_line_visible(2, False).set_line_visible(3, False)
         minort = Text("Wrong").next_to(minor.bell_lines[5], direction=UP)
         self.play(minor.reveal(), Write(minort, run_time=1))
@@ -517,3 +517,102 @@ class paragraph9(Scene):
 
         self.play(*[Unwrite(t) for t in [title, definition, title2, definition2]])
 
+class paragraph10(Scene):
+    def construct(self):
+        lines = [MethodLine([[1,3,2,5,4,6],[1,3,5,2,6,4]], "", 6, [1], [0]),
+                 MethodLine([[1,3,2,5,4,6],[1,2,3,5,6,4]], "", 6, [1], [0]),
+                 MethodLine([[1,3,2,5,4,6],[1,3,2,5,6,4]], "", 6, [1], [0])]
+        lobjects = Group(*[LineObject(l).scale(4) for l in lines]).arrange(buff=1).center()
+        for l in lobjects:
+            for j in l.bell_lines:
+                j.set_stroke(width=10)
+        texts = VGroup(Text(["Plain:", "Bob:", "Single:"][i]).next_to(lobjects[i], direction=UP) for i in range(3))
+        self.play(*[l.reveal() for l in lobjects], Write(texts, run_time=1))
+        self.play(*[lobjects[1].all_bell_texts[i].primary_text.animate.set_color(BLUE) for i in range(7,10)],
+                  *[lobjects[2].all_bell_texts[i].primary_text.animate.set_color(BLUE) for i in range(8,10)])
+        
+        self.play(Circumscribe(VGroup(lobjects[0].all_bell_texts[2], lobjects[0].all_bell_texts[9])))
+        self.play(Circumscribe(VGroup(lobjects[2].all_bell_texts[2], lobjects[2].all_bell_texts[9])))
+
+        new_lines = [MethodLine([[1,3,2,5,4],[1,3,5,2,4]], "", 5, [1], [0]),
+                     MethodLine([[1,3,2,5,4],[1,2,3,5,4]], "", 5, [1], [0]),
+                     MethodLine([[1,3,2,5,4],[1,3,2,5,4]], "", 5, [1], [0])]
+        new_lobjects = Group(*[LineObject(new_lines[i]).scale(4).next_to(lobjects[i], direction=DOWN).shift(LEFT*.3) for i in range(len(new_lines))])
+        for l in new_lobjects:
+            for j in l.bell_lines:
+                j.set_stroke(width=10)
+        for i in range(6,9):
+            new_lobjects[1].all_bell_texts[i].primary_text.set_color(BLUE)
+        for i in range(7,9):
+            new_lobjects[2].all_bell_texts[i].primary_text.set_color(BLUE)
+        self.play(*[l.reveal() for l in new_lobjects])
+
+        self.play(Circumscribe(new_lobjects[2]))
+
+        s = new_lobjects[2]
+        dist = s.anchors[1].get_x() - s.anchors[0].get_x()
+        for t in s.all_bell_texts:
+            t.clear_updaters()
+        #3254
+        self.play(s.all_bell_texts[7].animate.shift(RIGHT*dist*2).set_color(RED),
+                  s.all_bell_texts[8].animate.shift(LEFT*dist).set_color(WHITE),
+                  s.all_bell_texts[9].animate.shift(LEFT*dist).set_color(BLUE))
+
+        self.play(s.all_bell_texts[6].animate.shift(RIGHT*dist).set_color(BLUE),
+                  s.all_bell_texts[8].animate.shift(LEFT*dist).set_color(RED),
+                  s.all_bell_texts[9].animate.shift(RIGHT*dist).set_color(WHITE),
+                  s.all_bell_texts[7].animate.shift(LEFT*dist).set_color(WHITE))
+
+        self.play(s.all_bell_texts[6].animate.shift(LEFT*dist).set_color(BLUE),
+                  s.all_bell_texts[7].animate.shift(LEFT*dist).set_color(BLUE),
+                  s.all_bell_texts[8].animate.shift(RIGHT*dist*2).set_color(BLUE))
+
+        self.play(*[l.unreveal() for l in [*lobjects,*new_lobjects]], Unwrite(texts, run_time=1))
+        
+class paragraph11(Scene):
+    def construct(self):
+        nlines = [MethodLine([[1,2,3,4,5,6,7,8],[1,2,4,3,6,5,8,7]], "", 8, [1], [0]),
+                 MethodLine([[1,2,3,4,5,6,7,8],[1,3,2,4,6,5,8,7]], "", 8, [1], [0], {0:"-b"}),
+                 MethodLine([[1,2,3,4,5,6,7,8],[1,2,3,4,6,5,8,7]], "", 8, [1], [0], {0:"-s"}),
+                 MethodLine([[1,2,3,4,5,6,7,8],[1,3,2,5,4,6,8,7]], "", 8, [1], [0], {0:"-x"})]
+        near = LineObject(nlines[0]).scale(5).set_all_lines_visible()
+        for j in near.bell_lines:
+            j.set_stroke(width=10)
+
+        flines = [MethodLine([[1,2,3,4,5,6,7,8],[1,3,2,5,4,7,6,8]], "", 8, [1], [0]),
+                  MethodLine([[1,2,3,4,5,6,7,8],[1,3,2,5,4,6,8,7]], "", 8, [1], [0], {0:"-b"}),
+                  MethodLine([[1,2,3,4,5,6,7,8],[1,3,2,5,4,6,7,8]], "", 8, [1], [0], {0:"-s"}),
+                  MethodLine([[1,2,3,4,5,6,7,8],[1,3,2,4,6,5,8,7]], "", 8, [1], [0], {0:"-x"})]
+        far = LineObject(flines[0]).scale(5).set_all_lines_visible()
+        for j in far.bell_lines:
+            j.set_stroke(width=10)
+        
+        near_text = Text("Near:")
+        far_text = Text("Far:")
+        Group(near_text, near, far_text, far).arrange(direction=DOWN).center()
+
+        self.play(near.reveal(), far.reveal(), Write(near_text), Write(far_text))
+        self.play(Circumscribe(VGroup(near.all_bell_texts[1], near.all_bell_texts[9])))
+        self.play(Circumscribe(VGroup(near.all_bell_texts[2], near.all_bell_texts[15])))
+        self.play(Circumscribe(VGroup(far.all_bell_texts[7], far.all_bell_texts[15])))
+        for i in [1,2,0,3,0]:
+            self.play(near.animate_to_new_composition(nlines[i]), far.animate_to_new_composition(flines[i]))
+        self.play(Unwrite(near_text), Unwrite(far_text), near.unreveal(), far.unreveal())
+
+class paragraph12(Scene):
+    def construct(self):
+        pb = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+        plain = LineObject(LineGenerator.generate_line([pb])).scale(2.7)
+        leDist = plain.ruleoffs[0].get_y()-plain.ruleoffs[1].get_y()
+        plain.shift([5,-.5*leDist,0])
+        for i in range(5):
+            plain.set_line_visible(i, True)
+        t = Paragraph("Thanks for watching!", "Created by Matthew Collier", line_spacing=.7)
+        t2 = Paragraph("Special thanks to:", "Mick Hutton for letting me borrow his microphone", "Jadd Virji for the support", "All ringers at St. Barnabas", "Everyone in the CUGCR", "", "", "Consider downloading my app \"Campana\" for more ringing fun!", line_spacing=.7).scale(0.5)
+        texts = VGroup(t, t2).arrange(direction=DOWN)
+        t.to_edge(LEFT).shift(UP)
+        t2.to_edge(LEFT).shift(UP)
+        campana = ImageMobject("Campana.png").scale(0.6).next_to(t2, direction=DOWN).to_edge(LEFT)
+        self.play(FadeIn(plain, run_time=2), Write(texts, run_time=2))
+        self.play(FadeIn(campana, run_time=0.5))
+        self.wait()

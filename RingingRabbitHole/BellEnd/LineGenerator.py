@@ -19,14 +19,15 @@ class Calls:
         self.cover = cover
 
 class MethodLine:
-    def __init__(self, positions, indexes, notation, stage):
+    def __init__(self, positions, notation, stage, huntBells = [], ruleoffs = [], labels = {}):
         self.positions = positions
-        self.indexes = indexes
+        self.indexes = [[(lst.index(i) if i in lst else 0) for i in range(len(lst)+1)] for lst in positions]
+
         self.notation = notation
         self.stage = stage
-        self.ruleoffs = []
-        self.labels = {}
-        self.huntBells = []
+        self.ruleoffs = ruleoffs
+        self.labels = labels
+        self.huntBells = huntBells
         self.placeBellPositions = []
 
     @property
@@ -67,7 +68,7 @@ class LineGenerator:
         initial_stage = max(m.stage for m in methods)
 
         notation_parts = split_notation(expand_notation(lg.m.notation))
-        lg.line = MethodLine([], [], notation_parts, initial_stage)
+        lg.line = MethodLine([], notation_parts, initial_stage)
         if not composition.plain:
             lg.line.notation = []
 
