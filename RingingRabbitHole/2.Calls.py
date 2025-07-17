@@ -48,7 +48,7 @@ class paragraph1(Scene):
         without_a_call.shift(LEFT*3 - without_a_call.get_right()).to_edge(UP)
         with_a_call = Paragraph("With a", "call").scale(0.8)
         with_a_call.shift(RIGHT*3 - with_a_call.get_left()).to_edge(UP)
-        self.play(Unwrite(b_text), Write(without_a_call), Write(with_a_call), line_without.reveal(), line_with.animate.shift(RIGHT*1.5))
+        self.play(Unwrite(b_text), Write(without_a_call), Write(with_a_call), line_without.reveal(), line_with.anchors.animate.shift(RIGHT*1.5))
 
         #Descriptions on the side
         without_descriptions = Paragraph("3/4 up", "Seconds", "3/4 down", "4 blows", alignment="right").scale(0.8)
@@ -97,9 +97,9 @@ class paragraph1(Scene):
         self.play(*[Write(b.primary_text) for b in bell_texts],
                   *[Write(t) for t in texts],
                   *[Create(a) for a in arcs],
-                  FadeOut(without_a_call), FadeOut(with_a_call), FadeOut(with_descriptions), FadeOut(without_descriptions),
-                  line_with.animate.to_edge(RIGHT).shift(LEFT*0.5),
-                  line_without.animate.to_edge(RIGHT).shift(LEFT*3.5))
+                  FadeOut(without_a_call, run_time=0.5), FadeOut(with_a_call, run_time=0.3), FadeOut(with_descriptions, run_time=0.3), FadeOut(without_descriptions, run_time=0.3),
+                  line_with.anchors.animate.to_edge(RIGHT).shift(LEFT*0.5),
+                  line_without.anchors.animate.to_edge(RIGHT).shift(LEFT*3.5))
 
         self.play(*[line_with.animate_line_visible(i, True) for i in [2,3,5]],
                   *[line_without.animate_line_visible(i, True) for i in [2,3,5]])
@@ -108,7 +108,7 @@ class paragraph1(Scene):
         self.play(Rotate(anchors[3], -PI/2, about_point=center),
                   anchors[2].animate.move_to(positions[3]))
 
-        self.play(*[Unwrite(b.primary_text, run_time=0.1) for b in bell_texts], *[Unwrite(t, run_time=0.1) for t in texts], *[Uncreate(a, run_time=0.1) for a in arcs],
+        self.play(*[Unwrite(b.primary_text, run_time=0.5) for b in bell_texts], *[Unwrite(t, run_time=0.5) for t in texts], *[Uncreate(a, run_time=0.5) for a in arcs],
                   line_with.unreveal(), line_without.unreveal())
 
 class paragraph2(Scene):
@@ -160,16 +160,18 @@ class paragraph2(Scene):
         self.play(first.animate.center().shift(RIGHT*4+UP*1.5).scale(2), second.animate.center().shift(RIGHT*4+DOWN*1.5).scale(2))
 
         whereEachGoes = [0,1,2,4,3]
-        transitionLines = VGroup(*[Line(first[i].get_bottom(), second[whereEachGoes[i]].get_top(), buff=0.2).set_stroke(width=8) for i in range(5)])
+        transitionLines2 = VGroup(*[Line(first[i].get_bottom(), second[whereEachGoes[i]].get_top(), buff=0.2).set_stroke(width=8) for i in range(5)])
 
-        transitionLineCopies = VGroup()
         for i in range(5):
             c = plain.bell_lines[[0,4,3,2,1][i]].get_subcurve(2/7,3/7).clear_updaters()
             transitionLineCopies.add(c)
-            transitionLines[i].set_color(c.get_color())
-            self.play(c.animate.become(transitionLines[i]))
+            transitionLines2[i].set_color(c.get_color())
+            self.play(c.animate.become(transitionLines2[i]))
 
-        self.play(FadeOut(first), FadeOut(second), transitionLines.animate.set_color(WHITE))
+        self.play(FadeOut(first), FadeOut(second), transitionLines2.animate.set_color(WHITE))
+        self.remove(*transitionLineCopies)
+
+        self.play(plain.unreveal(), Uncreate(transitionLines), Uncreate(transitionLines2), Unwrite(plain_text), Unwrite(bob_text))
 
 class paragraph3(Scene):
     def construct(self):
@@ -177,7 +179,7 @@ class paragraph3(Scene):
         arrange_into_circle(lhs, ORIGIN, 2)
         arrows = VGroup(Arrow(lhs[i].get_center(), lhs[(i+1)%4].get_center(), buff=0.7) for i in range(4))
         self.play(Write(lhs, run_time=2))
-        self.play(*[Create(a) for a in arrows])
+        self.play(*[Write(a) for a in arrows])
         
         shift_amount = 3.7
         self.play(lhs.animate.shift(LEFT*shift_amount), arrows.animate.shift(LEFT*shift_amount))
@@ -187,9 +189,9 @@ class paragraph3(Scene):
         barrows = VGroup(Arrow(blhs[i].get_center(), blhs[(i+1)%4].get_center(), buff=0.7) for i in range(4))
 
         transition_arrow = Arrow(lhs[2].get_center(), blhs[0].get_center(), buff=1, color=BLUE)
-        self.play(Create(transition_arrow))
+        self.play(Write(transition_arrow))
         self.play(Write(blhs, run_time=2))
-        self.play(*[Create(a) for a in barrows])
+        self.play(*[Write(a) for a in barrows])
 
         plain_course = Text("Plain course:").next_to(lhs, direction=UP, buff=0.5)
         new_course = Text("New course:").next_to(blhs, direction=UP, buff=0.5)
@@ -224,10 +226,7 @@ class paragraph3(Scene):
                   blhs[0].animate.become(lhs[0]).set_color(WHITE).move_to(blhs[0]),
                   FadeOut(transition_arrow), Write(disclaimer, run_time=1))
         
-        self.play(*[Unwrite(a, run_time=1) for a in [lhs, blhs, plain_course, new_course, disclaimer]],
-                  *[Uncreate(a, run_time=1) for a in [arrows, barrows]])
-
-        
+        self.play(*[Unwrite(a, run_time=1) for a in [lhs, blhs, plain_course, new_course, disclaimer, arrows, barrows]])
 
 class paragraph4(Scene):
     def construct(self):
@@ -258,7 +257,6 @@ class paragraph4(Scene):
         self.play(FadeOut(first), FadeOut(copies))
         self.play(line.unreveal())
 
-
         #Explanation:
         lines = [
             r"To explain this I first need to first define some notation:",
@@ -267,7 +265,7 @@ class paragraph4(Scene):
             r"The new row we are looking at is $B$, where $B=AH^n$ for some $n$.",
             r"Applying the same method as above:",
             r"$H^xB^{-1}I=H^x(AH^n)^{-1}I=H^xH^{-n}A^{-1}I=H^xA^{-1}I$ by absorbing $-n$ into the $x$ term.",
-            r"And thus these two methods give the same solution as a course only has one course head. Don't worry if you don't get this now, I'll go into much more detail about this in the future"
+            r"And thus these two methods give the same solution as a course only has one course head. Don't worry if you don't get this now, I'll go into much more detail about this in the future!"
         ]
 
         paragraph = VGroup(
@@ -279,7 +277,6 @@ class paragraph4(Scene):
         bits = VGroup()
         for i in range(3):
             bits.add(Text(["I","H","A"][i]).scale(0.4).next_to(line.all_bell_texts[[0,50,95][i]], direction=LEFT))
-            
 
         self.play(Write(paragraph, run_time=1), line.reveal(), Write(bits, run_time=1))
         self.wait()
@@ -324,7 +321,7 @@ class paragraph6(Scene):
 
         l = lobjects[3]
         t = texts[3]
-        self.play(*[FadeOut(lobjects[i]) for i in range(3)], *[FadeOut(texts[i]) for i in range(3)], t.animate.set_x(0), l.animate.set_x(0))
+        self.play(*[FadeOut(lobjects[i]) for i in range(3)], *[FadeOut(texts[i]) for i in range(3)], t.animate.set_x(0), l.anchors.animate.set_x(0))
 
         c = Composition(5, [CompositionPart("b")])
         self.play(l.animate_to_new_composition(LineGenerator.generate_line([pb], c, 1, leadEnds[3])))
@@ -445,16 +442,18 @@ class paragraph7(Scene):
 
 class paragraph8(Scene):
     def construct(self):
-        #https://complib.org/composition/140122
+        #https://complib.org/composition/107061
         tm = create_comp([
-            ["4253678", "M", "I", "T", "B", "F", "V", "W", "H"],
-            ["24536", "", "", "", "", "", "", "", "s-"],
-            ["43652", "", "", "s", "", "", "s", "", "—"],
-            ["(6473258)", "", "", "", "—", "—", "", "", ""],
-            ["(5726348)", "", "", "", "s", "—", "", "", ""],
-            ["2753468", "", "—", "", "", "—", "", "2", "-s"],
-            ["53742", "", "s", "", "", "", "2", "-s", ""],
-            ["", "", "", "", "etc.", "", "", "", ""],
+            ["2345678", "V", "B", "M", "W", "F", "I", "T", "H"],
+            ["34256", "", "", "", "", "", "", "", "2"],
+            ["52643", "", "", "s", "—", "", "", "", "s"],
+            ["5743628", "s", "—", "", "", "", "", "", "—"],
+            ["35476", "", "", "", "—", "", "", "", ""],
+            ["64573", "", "", "—", "", "", "", "", "—"],
+            ["73546", "", "", "s", "—", "", "", "", ""],
+            ["(2374658)", "—", "", "", "", "", "—", "", ""],
+            ["3472658", "", "", "", "2", "", "", "", ""],
+            ["", "", "", "", "etc.", "", "", "", ""]
         ]).scale(0.5)
         self.play(Write(tm, run_time=1))
         self.wait()
@@ -483,6 +482,8 @@ class paragraph8(Scene):
         self.play(line.anchors.animate.shift(UP*4*leDist))
         self.play(t.get_entries((4,2)).copy().animate(remover=True).become(line.labels[109]))
         self.play(line.anchors.animate.shift(UP*.5*leDist))
+
+        self.play(line.unreveal(), Unwrite(t, run_time=0.5))
 
 import itertools
 class paragraph9(Scene):
@@ -515,7 +516,7 @@ class paragraph9(Scene):
         self.play(Write(title2))
         self.play(Write(definition2))
 
-        self.play(*[Unwrite(t) for t in [title, definition, title2, definition2]])
+        self.play(*[Unwrite(t, run_time=1) for t in [title, definition, title2, definition2]])
 
 class paragraph10(Scene):
     def construct(self):

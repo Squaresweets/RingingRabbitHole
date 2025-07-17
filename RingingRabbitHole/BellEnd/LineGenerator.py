@@ -68,7 +68,7 @@ class LineGenerator:
         initial_stage = max(m.stage for m in methods)
 
         notation_parts = split_notation(expand_notation(lg.m.notation))
-        lg.line = MethodLine([], notation_parts, initial_stage)
+        lg.line = MethodLine([], notation_parts, initial_stage, [], [], {})
         if not composition.plain:
             lg.line.notation = []
 
