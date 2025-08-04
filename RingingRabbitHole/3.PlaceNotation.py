@@ -44,13 +44,27 @@ class paragraph1(Scene):
         expanded_notation = split_notation(long_notation)
         notation_texts = VGroup()
         for i,n in enumerate(expanded_notation):
-            print(n)
             notation_texts.add(Text(n).next_to(g[i], buff=0.5))
         # self.play(Write(notation_texts))
         self.play(text_copies.animate.become(notation_texts[9]), Unwrite(copy), Unwrite(t))
-        self.play(*[g[i].copy().animate.become(notation_texts[i]) for i in range(9)])
+        g_copy = g.copy()
+        self.add(g_copy)
+        self.play(*[g[i].animate.become(notation_texts[i]) for i in range(9)])
+        g[9].become(notation_texts[9])
+        self.remove(g, text_copies)
+        self.add(notation_texts)
 
-        long_notation_text = Text(long_notation, scale=1.2)
+        long_notation_text = Text(long_notation).scale(1.2)
         animations = []
+        i=0
+        for text in notation_texts:
+            for char in text:
+                print(long_notation[i])
+                animations.append(char.animate.become(long_notation_text[i]))
+                i += 1
+            i += 1 #Get around the .
 
-        self.play(*animations, FadeOut(g[i]))
+        self.play(*animations, FadeOut(g_copy))
+        self.play(FadeIn(long_notation_text))
+        self.remove(notation_texts)
+        self.play(Unwrite(long_notation_text, run_time=1))
