@@ -188,3 +188,10 @@ class LineObject(Mobject):
     
     def get_row(self, row_num):
         return VGroup(self.all_bell_texts[row_num*self.stage+i].primary_text.copy().set_opacity(1) for i in range(self.stage))
+    
+    def get_change(self, row_num):
+        proportion = 1/(len(self.anchors)/self.stage-1)
+        return VGroup(l.get_subcurve(row_num*proportion,(row_num+1)*proportion).clear_updaters().set_opacity(1).set_fill(opacity=0) for l in self.bell_lines)
+    
+    def get_all_changes(self):
+        return VGroup(self.get_change(i) for i in range(len(self.anchors)//self.stage-1))
