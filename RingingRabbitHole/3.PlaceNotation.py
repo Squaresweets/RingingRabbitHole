@@ -83,7 +83,10 @@ class paragraph2(Scene):
         self.play(Circumscribe(minor[i]) for i in range(0,11,2))
         notation = Text(".16..16..16..16..16..12").match_x(minor).shift(LEFT*.5)
         self.play(FadeOut(doubles), minor.animate.match_x(doubles).shift(LEFT), Write(notation, run_time=1))
-        self.play(TransformMatchingShapes(notation, Text("x16x16x16x16x16.12").move_to(notation)))
+        new_notation = Text("x16x16x16x16x16.12").move_to(notation)
+        self.play(TransformMatchingShapes(notation, new_notation))
+
+        self.play(Unwrite(new_notation, run_time=1), Unwrite(minor, run_time=1))
 
 class paragraph3(ThreeDScene):
     def construct(self):
@@ -167,5 +170,94 @@ class paragraph4(ThreeDScene):
         self.play(Circumscribe(change_example[1]))
         self.play(Circumscribe(change_example[0]), Circumscribe(change_example[3]))
 
-        self.play(notation.animate.become(Text("125").scale(2).shift(UP*2)))
+        self.play(notation.animate.become(Text("125").scale(2).shift(UP*2))) 
+        
+        external_only = LineObject(MethodLine([[1,2,3,4,5,6],[1,3,2,5,4,6]], "", 6, [], [])).set_all_lines_visible().scale(9)
+        for j in external_only.bell_lines:
+            j.set_stroke(width=10)
 
+        self.play(change_example.animate.become(VGroup(*external_only.bell_lines)), notation.animate.become(Text("16  or  1  or  6").scale(2).shift(UP*2)))
+
+        self.play(Unwrite(notation, run_time=1), Unwrite(change_example, run_time=1))
+        
+
+class paragraph5(Scene):
+    def construct(self):
+        line = LineObject(LineGenerator.generate_line([pb], lead_end_cap=1)).set_all_lines_visible().scale_to_fit_height(config.frame_height * 0.9)
+
+        expanded_notation = split_notation(expand_notation(pb.notation))
+        notation_texts = VGroup()
+        g = line.get_all_changes()
+        for i,n in enumerate(expanded_notation):
+            notation_texts.add(Text(n).set_opacity(0.5).next_to(g[i], direction=LEFT, buff=.4))
+        self.play(line.reveal(), Write(notation_texts))
+
+        for i in range(2):
+            call_line = lg.generate_line([pb], Composition(5, [CompositionPart(["b","s"][i])]), 1)
+            self.play(line.animate_to_new_composition(call_line), notation_texts[9].animate.become(Text(["145","123"][i], fill_opacity=.5).set_color(RED), match_center=True))
+
+        j = Method(5,"(42).[321].5.1.5.1.5.1.5.125",Calls("145","123",0,10,1),0,10)
+        jump = lg.generate_line([j], lead_end_cap=1)
+        self.play(line.animate_to_new_composition(jump),
+                  notation_texts[0].animate.become(Text("(42)").set_opacity(0.5).next_to(g[0], direction=LEFT, buff=.4)),
+                  notation_texts[1].animate.become(Text("[321]").set_opacity(0.5).next_to(g[1], direction=LEFT, buff=.4)),
+                  notation_texts[9].animate.become(Text("125").set_opacity(0.5).next_to(g[9], direction=LEFT, buff=.4)))
+        Text(n).set_opacity(0.5).next_to(g[i], direction=LEFT, buff=.4)
+
+        self.play(Unwrite(notation_texts, run_time=1), line.unreveal())
+
+class paragraph6(Scene):
+    def construct(self):
+        notation = Text("x16x16x16,12")
+        self.play(Write(notation, run_time=1))
+        self.play(notation.animate.become(Text("a &-16-16-16,+12")))
+        self.play(Circumscribe(notation[0]))
+        self.play(Circumscribe(VGroup(notation[1],notation[10])))
+        self.play(Circumscribe(VGroup(notation[12],notation[14])))
+        self.play(FadeOut(notation[11]))
+        notation.remove(notation[11])
+        self.play(Unwrite(notation))
+
+class paragraph7(Scene):
+    def construct(self):
+        pb = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+        plain = LineObject(LineGenerator.generate_line([pb])).scale(2.7)
+        leDist = plain.ruleoffs[0].get_y()-plain.ruleoffs[1].get_y()
+        plain.shift([5,-.5*leDist,0])
+        for i in range(5):
+            plain.set_line_visible(i, True)
+        t = Paragraph("Thanks for watching!", "Created by Matthew Collier", line_spacing=.7)
+        t2 = Paragraph("Special thanks to:", "Mick Hutton for letting me borrow his microphone", "Jadd Virji for the support", "All ringers at St. Barnabas", "Everyone in the CUGCR", "", "", "Consider downloading my app \"Campana\" for more ringing fun!", line_spacing=.7).scale(0.5)
+        texts = VGroup(t, t2).arrange(direction=DOWN)
+        t.to_edge(LEFT).shift(UP)
+        t2.to_edge(LEFT).shift(UP)
+        campana = ImageMobject("Campana.png").scale(0.6).next_to(t2, direction=DOWN).to_edge(LEFT)
+        self.play(FadeIn(plain, run_time=2), Write(texts, run_time=2))
+        self.play(FadeIn(campana, run_time=0.5))
+        self.wait()
+
+class introduction(MovingCameraScene):
+    def construct(self):
+        pb = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+        plain = LineObject(LineGenerator.generate_line([pb]))
+        for i in range(5):
+            plain.set_line_visible(i, True)
+        
+        lines = VGroup(plain.bell_lines).clear_updaters()
+        self.play(Create(l, rate_func=smoothstep, run_time=1) for l in lines)
+        radius = 2.5
+        height = lines.height
+        def bend(p):
+            x, y, z = p
+            angle = y/(height/2)*PI+PI/2
+            return (radius+x) * np.array([np.sin(angle), -np.cos(angle), 0])
+        self.play(ApplyPointwiseFunction(bend, lines, run_time=2))
+
+        t = Paragraph("The Ringing", "Rabbit Hole", alignment="center")
+        name = Text("By Matthew Collier").scale(0.5).next_to(t,direction=DOWN)
+        self.play(Write(VGroup(t,name)))
+        t2 = Paragraph("Episode 3:", "Place Notation", alignment="center").scale(0.8).shift(DOWN*3)
+        self.play(Write(t2), VGroup(lines, t, name).animate(run_time=0.6).shift(UP*0.8))
+        self.wait()
+        self.play(self.camera.frame.animate(run_time=0.8, rate_func=smooth).scale(0.005).move_to(t[1][7]))
+        # self.play(VGroup(lines, t).animate(rate_func=smoothstep).shift(-t[1][7].get_center()).scale(20))
