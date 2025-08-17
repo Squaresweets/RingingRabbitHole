@@ -1,0 +1,28 @@
+Hi there, my name is Matthew and welcome to teh fourth episode of the ringing rabbit hole. In the last episode we covered place notation, but today I want to discuss coursing order.
+
+Coursing order is a tool used by conductors to ensure that people are in the right place.
+
+In its simplest form it is this sequence of numbers:
+1 7532468
+This sequence is used because of its usefulness in plain bob lead head methods, but it is used in most methods for simplicity.
+
+To see where this sequence appears, lets look at a lead of plain bob major.
+Plain bob major shown
+Looking at the path the tenor follows, keep track of which bells it rings after, notice the pattern? It follows the coursing order! Minus the treble and the 8.
+What about the path of the 7, it does too! A key thing to note is that coursing order is cyclic, it doesn't matter what rotation you use, it's still valid, different sources may use different rotations so don't let that through you off.
+
+What about for the next lead?
+Looks like the 6 now follows the path that the 8 followed in the first lead. Looking at the bells that it follows we can see that the coursing order has been preserved between leads. This is one of the primary properties of coursing order, in a plain course it doesn't change. But why is that?
+If we apply the lead head transposition to the coursing order we can see that it simply shifts the numbers to the left by one, and so due to coursing order being cyclic, despite the bells changing between leads we still have the same coursing order! This property is why we chose that sequence of numbers, because it makes it a lot easier to keep track of. In reality we could use any sequence of numbers which appears in the first lead as long as we mentally transposed it between leads.
+
+Another thing to note is that the bells lead in the order of the coursing order, it's easy to see why if you notice that as your bell goes out, the bells that you follow are all going in the opposite direction, towards the front to lead.
+
+But what happens if we have a call. Lets focus on a call at the first lead end for now. We can see that this call turns makes the 2 follow the path of the 3, the 3 the 5 and the 5 the 2. So on another bell, where in the coursing order we would expect to see the 3 we would instead see the 2. We can envision this change as a transposition in the coursing order. What about for a single? A single only swaps 2 bells, and we can see that reflected in the coursing order transposition.
+
+What about a bob at the next lead. Instead of affecting the 3 2 and 5, it instead affects the 5 3 and 7. Where in the coursing order originally the first three bells where effected, rotating it around we can see that at this lead the three bells before are affected. This makes sense if you consider that at each lead the coursing order shifts one to the left. So if we first shift the CO to the left, then apply our original transposition, that works!
+
+This pattern continues for all leads, here are the transpositions for each lead, with both the lead number and the calling position of the tenor for that lead. So either we could rotate the coursing order at each lead end and apply the transposition to teh first three bells when a bob is called, or we could remember the transposition for each calling position. Both approaches are valid and different methods call for different ways of remembering the coursing order.
+
+Another thing to note is that a lot of compositions are tenors together. This means that a call is never made which splits up the tenors in the coursing order (7 and 8 in this case). Looking at our table, Wrong middle and home are the only calls which leave the trebles alone, and so if we have a tenors together method we can forget about 7 and 8 in the coursing order alltogether. Ah but what about before, this effects the 7 and 8 but keeps them together, just shifting them to the left. If we pin the tenors at the back we can imagine the transposition as this instead.
+
+Let's look at a different method now, how about grandsire triples. The coursing order is still visible throughout the plain course, however since the 2 is now a hunt bell like the 1 it does not stick with the other bells in the coursing order. Because of this it is useful to keep track of where the 2 is, and so we instead use lead by lead transpositions, like this.
