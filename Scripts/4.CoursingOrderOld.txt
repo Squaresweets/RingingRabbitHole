@@ -3,7 +3,7 @@ Hi there, my name is Matthew and welcome to teh fourth episode of the ringing ra
 Coursing order is a tool used by conductors to ensure that people are in the right place.
 
 In its simplest form it is this sequence of numbers:
-1 7532468
+75312468
 This sequence is used because of its usefulness in plain bob lead head methods, but it is used in most methods for simplicity.
 
 To see where this sequence appears, lets look at a lead of plain bob major.
