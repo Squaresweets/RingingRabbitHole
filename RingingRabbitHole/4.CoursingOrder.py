@@ -25,19 +25,19 @@ def arrange_into_line(m, buff=1):
     for i, item in enumerate(m):
         item.set_y(center[1]).set_x(center[0]+buff*(i-(len(m)-1)/2))
 
-def Rotate_no_spin(mobject, angle, about_point=ORIGIN):
+def Rotate_no_spin(mobject, angle, about_point=ORIGIN, scale=1):
     start_pos = mobject.get_center()
     def update(mob, alpha):
         theta = angle * alpha
         rot_matrix = rotation_matrix(theta, OUT)  # 2D rotation in XY plane
         offset = start_pos - about_point
-        new_pos = about_point + rot_matrix @ offset
+        new_pos = about_point + rot_matrix @ offset * (1 + (scale - 1) * alpha)
         mob.move_to(new_pos)
     return UpdateFromAlphaFunc(mobject, update)
 
-def Rotate_co(m):
+def Rotate_co(m, run_time=1):
     co = sorted(m.submobjects, key=lambda x: x.get_center()[0])
-    return AnimationGroup(*[co[i].animate.move_to(co[i+1]) for i in range(len(co)-1)], MoveAlongPath(co[-1], ArcBetweenPoints(co[-1].get_center(), co[0].get_center(), angle=PI)))
+    return AnimationGroup(*[co[i].animate.move_to(co[i+1]) for i in range(len(co)-1)], MoveAlongPath(co[-1], ArcBetweenPoints(co[-1].get_center(), co[0].get_center(), angle=PI)), run_time = run_time)
 
 class test(Scene):
     def construct(self):
@@ -79,15 +79,38 @@ class paragraph2(Scene):
         line = LineObject(LineGenerator.generate_line([pbm], lead_end_cap=1)).set_line_visible(8, True).scale(3)
         self.play(line.reveal())
 
-        leading_order_example = Text("24687531").scale(0.9)
-        arrange_into_line(leading_order_example, 0.4)
-        leading_order_example.next_to(line, direction=LEFT, buff=1)
-        for i in range(8):
-            self.play(VGroup(line.all_bell_texts[8+16*i].copy().clear_updaters(),
-                             line.all_bell_texts[16+16*i].copy().clear_updaters())
-                      .animate.become(leading_order_example[i]))
-        self.play(line.animate_line_visible(i, True) for i in [2,4,6])
-        self.play(*[line.animate_line_visible(i, False) for i in [2,4,6,8]],
-                  *[line.animate_line_visible(i, True) for i in [3,5,7]])
-        self.play(*[line.animate_line_visible(i, False) for i in [3,5,7]],
-                  line.animate_line_visible(8, True))
+        # First column animation
+        first_column = VGroup(line.all_bell_texts[i*line.stage].primary_text.copy().set_opacity(1) for i in range(1,17))
+        self.play(first_column.animate.shift(LEFT*3))
+        center = first_column.get_center() # Will be used later
+        distance = first_column[0].get_y()-first_column[1].get_y()
+        self.play(first_column[i].animate(remover=True).shift(UP*distance) for i in range(1, 16, 2))
+        self.play(Rotate_no_spin(first_column[i], PI/2, center, scale=0.5) for i in range(0, 16, 2))
+        self.play(FadeOut(first_column[i]) for i in range(0, 16, 2))
+
+        followed_positions = list(range(8,8*8,9)) + list(range(70,119,7))
+        followed = VGroup(line.all_bell_texts[i].primary_text.copy().set_opacity(1) for i in followed_positions)
+        self.play(Indicate(f) for f in followed)
+        self.play(f.animate.set_x(center[0]) for f in followed)
+
+        first_half = VGroup(followed[i] for i in range(7))
+        second_half = VGroup(followed[i] for i in range(7,14))
+        self.play(*[Rotate_no_spin(f, PI/2, first_half.get_center()) for f in first_half],
+                  *[Rotate_no_spin(f, PI/2, second_half.get_center()) for f in second_half])
+        self.play(FadeOut(second_half))
+
+        new_1 = line.all_bell_texts[0].primary_text.copy().set_opacity(1) #Just to ensure it is the right size
+        new_1.set_y(first_half.get_y()).set_x(first_half[6].get_x()+distance) # Goofy ahh code
+        self.play(FadeIn(new_1))
+        first_half.add(new_1)
+
+        for _ in range(4): # Rotate so 8 is at the back
+            self.play(Rotate_co(first_half, 0.5))
+        self.play(FadeOut(first_half[3]))
+        first_half.remove(first_half[3])
+        self.play(*[Rotate_no_spin(f, -PI/2, first_half.get_center()) for f in first_half])
+
+        followed_positions = list(range(6,50,7))
+        followed = VGroup(line.all_bell_texts[i].primary_text.copy().set_opacity(1) for i in followed_positions)
+        self.play(TransformMatchingShapes(first_half, followed))
+        self.play(FadeOut(followed))
