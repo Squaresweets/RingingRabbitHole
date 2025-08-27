@@ -24,6 +24,7 @@ def arrange_into_line(m, buff=1):
     center = m.get_center()
     for i, item in enumerate(m):
         item.set_y(center[1]).set_x(center[0]+buff*(i-(len(m)-1)/2))
+    return m
 
 def Rotate_no_spin(mobject, angle, about_point=ORIGIN, scale=1):
     start_pos = mobject.get_center()
@@ -42,14 +43,20 @@ def Rotate_co(m, run_time=1, reverse=False):
     else:
         return AnimationGroup(*[co[i].animate.move_to(co[i+1]) for i in range(len(co)-1)], MoveAlongPath(co[-1], ArcBetweenPoints(co[-1].get_center(), co[0].get_center(), angle=PI)), run_time = run_time)
 
-def create_transposition(t):
+def create_transposition(t, include_straight_lines = False, add_updaters = False):
     output = VGroup()
     output.add(VGroup(Dot().scale(0.6) for _ in range(len(t))).arrange(buff=0.3))
     output.add(VGroup(Dot().scale(0.6) for _ in range(len(t))).arrange(buff=0.3).shift(DOWN*0.5)) # Bottom row
+    def make_line_updater(start, end):
+        def update_line(l):
+            l.set_points_by_ends(start.get_bottom(), end.get_top(), buff=0.03)
+        return update_line
     for i,n in enumerate(t):
-        if i == n:
+        if i == n and not include_straight_lines:
             continue
-        output.add(Line(output[0][i], output[1][n], buff=0.03))
+        output.add(Line(output[0][i].get_bottom(), output[1][n].get_top(), buff=0.03))
+        if add_updaters:
+            output[-1].add_updater(make_line_updater(output[0][i], output[1][n]))
     return output
 
 class test(Scene):
@@ -348,11 +355,25 @@ class paragraph5(Scene):
         tenors_together = [0,2,4,10]
         other = [1,3,5,6,7,8,9,11,12,13]
         bob_transpositions = [[0,1,4,2,3],[0,3,1,2,4],[2,0,1,3,4],[1,2,3,4,0]]
-        single_transpositions = [[0,1,4,3,2],[0,3,2,1,4],[2,1,0,3,4],[1,0,3,4,5,6,2]]
+        single_transpositions = [[0,1,4,3,2],[0,3,2,1,4],[2,1,0,3,4],[1,2,3,4,0,6,5]]
         call_table = MobjectTable([[Text("Position:"), Text("Bob:"), Text("Single:")],
                                     *[[placeBells[n].copy().scale(2), create_transposition(bob_transpositions[i]), create_transposition(single_transpositions[i])] for i,n in enumerate(tenors_together)]])
         call_table.scale_to_fit_height(config.frame_height*0.9)
+        new_trText = Text("53246 87").scale(0.8*0.7).set_opacity(0.7)
+        arrange_into_line(new_trText, 0.4).to_corner(UR, buff=0.2)
         self.play(FadeOut(remembering, bells, *[placeBells[i] for i in other], co, co2),
                   *[placeBells[tenors_together[i]].animate.become(call_table.get_entries((i+2,1))) for i in range(4)],
-                  transitionLines.animate.become(VGroup(call_table.get_entries((4,2))[i] for i in [2,3,4])))
+                  transitionLines.animate.become(VGroup(call_table.get_entries((4,2))[i] for i in [2,3,4])),
+                  trText.animate.become(new_trText))
         self.play(FadeIn(call_table))
+
+        bob_before_entry = call_table.get_entries((5,2))
+        n_bob_before = create_transposition([0,1,2,3,6,4,5], True, True).move_to(bob_before_entry)
+        single_before_entry = call_table.get_entries((5,3))
+        n_single_before = create_transposition([0,1,2,3,6,5,4], True, True).move_to(single_before_entry)
+        self.play(FadeOut(bob_before_entry, single_before_entry), FadeIn(n_bob_before, n_single_before))
+        self.play(Rotate_co(n_bob_before[1]), Rotate_co(n_single_before[1]))
+
+        #Horrible code
+        self.play(FadeOut(n_bob_before[0][5], n_bob_before[0][6], n_bob_before[1][4], n_bob_before[1][5], n_bob_before[7], n_bob_before[8]),
+                  VGroup(*[n_bob_before[0][i] for i in range(5)], *[n_bob_before[1][i] for i in [0,1,2,3,6]]).animate.shift(RIGHT*0.45))
