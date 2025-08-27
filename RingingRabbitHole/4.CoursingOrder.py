@@ -42,6 +42,16 @@ def Rotate_co(m, run_time=1, reverse=False):
     else:
         return AnimationGroup(*[co[i].animate.move_to(co[i+1]) for i in range(len(co)-1)], MoveAlongPath(co[-1], ArcBetweenPoints(co[-1].get_center(), co[0].get_center(), angle=PI)), run_time = run_time)
 
+def create_transposition(t):
+    output = VGroup()
+    output.add(VGroup(Dot().scale(0.6) for _ in range(len(t))).arrange(buff=0.3))
+    output.add(VGroup(Dot().scale(0.6) for _ in range(len(t))).arrange(buff=0.3).shift(DOWN*0.5)) # Bottom row
+    for i,n in enumerate(t):
+        if i == n:
+            continue
+        output.add(Line(output[0][i], output[1][n], buff=0.03))
+    return output
+
 class test(Scene):
     def construct(self):
         order = [4,6,8,7,5,3,2]
@@ -246,4 +256,103 @@ class paragraph4(Scene):
         co4 = Text("17532468").arrange(buff=0.3).scale(0.6).next_to(co3, direction=DOWN)
         self.play(TransformMatchingShapes(important_bells.copy(), co4))
 
-        self.play(FadeOut(VGroup(co, co2, co3, co4)))
+        self.play(FadeOut(VGroup(co, co2, co3, co4, one)))
+
+class paragraph5(Scene):
+    def construct(self):
+        trText = Text("75312468").scale(0.8) #Boiler plate stuff to keep this text in top right
+        arrange_into_line(trText, 0.4)
+        self.add(trText.to_corner(UR))
+
+        order = [4,6,8,7,5,3,2]
+        center_of_circle = ORIGIN
+
+        placeBells = arrange_into_circle([Text(str(i), color = BELL_COLORS[i-1]) for i in order], center_of_circle, 3, add_arrows=True)
+        bells = arrange_into_circle([Text(str(i)) for i in [5,3,2,4,6,8,7]], center_of_circle, 2)
+
+        one = Text("1").set_color(RED).shift([-2,.5,0])
+        self.add(placeBells, bells)
+
+        def rotate_texts(rotations = 1):
+            for _ in range(rotations):
+                temp = bells[6] #Rotate around the bells in the array
+                bells.remove(temp)
+                bells.insert(0, temp)
+            return [Rotate_no_spin(b, -2*PI/7 * rotations, center_of_circle) for b in bells]
+        def bob_rotate():
+            animations = [bells[4].animate.move_to(bells[0])] + [Rotate_no_spin(bells[i], -2*PI/7, center_of_circle) for i in range(4)]
+            temp = bells[4]
+            bells.remove(temp)
+            bells.insert(0, temp)
+            return animations
+        
+        self.play(rotate_texts(4))
+        self.play(Circumscribe(VGroup(placeBells[8], bells[4])),
+                  Circumscribe(VGroup(placeBells[10], bells[5])),
+                  Circumscribe(VGroup(placeBells[12], bells[6])))
+
+
+        important_bells = VGroup(bells[i] for i in [0,1,4,5,6])
+        co = Text("53246").arrange(buff=0.3).next_to(placeBells, buff=0.5).shift(UP*.5)
+        self.play(TransformMatchingShapes(important_bells.copy(), co), bells[2].animate.set_opacity(0.2), bells[3].animate.set_opacity(0.2))
+
+        self.play(bob_rotate())
+
+        co2 = Text("32546").arrange(buff=0.3).next_to(co, direction=DOWN, buff=1)
+        self.play(TransformMatchingShapes(important_bells.copy(), co2))
+
+        transitionLines = VGroup(*[Line(co[i].get_bottom(), co2[[2,0,1][i]].get_top(), buff=0.2) for i in range(3)])
+        self.play(Create(transitionLines))
+
+        remembering = Paragraph("Remembering:", "Tenors PB:", "7", alignment="center").scale(0.7).shift(LEFT*5)
+        remembering[2][0].set_color(BELL_COLORS[6])
+        self.play(Write(remembering, run_time=1))
+
+        new_bells = arrange_into_circle([Text(str(i)) for i in [8,7,5,3,2,4,6]], center_of_circle, 2)
+        new_bells[0].set_opacity(0.2)
+        new_bells[1].set_opacity(0.2)
+        # self.play(TransformMatchingShapes(bells, new_bells), remembering[2][0].animate.become(Text("4").set_color(BELL_COLORS[3]), match_center=True))
+        self.play(bells.animate.become(new_bells), remembering[2][0].animate.become(Text("4").set_color(BELL_COLORS[3]), match_center=True))
+
+        ball = Dot(bells[1].get_center()*0.7, radius=0.1)
+        arrow = Arrow(start=.2*UP, end=.2*DOWN).next_to(co[0], direction=UP, buff=0.1).shift(LEFT*0.6)
+        self.play(FadeIn(ball), FadeIn(arrow))
+
+        # Bouncing ball animation
+        ball_copies = VGroup()
+        arrow_copies = VGroup()
+        for i in range(2,7):
+            start = ball.get_center()
+            end = bells[i].get_center() * 0.7
+            arc = ArcBetweenPoints(
+                start, end,
+                angle=PI/3 
+            )
+            self.play(MoveAlongPath(ball, arc), arrow.animate.shift(RIGHT*0.6), run_time=0.6)
+            if i > 3:
+                ball_copies.add(ball.copy())
+                arrow_copies.add(arrow.copy())
+                self.add(arrow_copies[-1], ball_copies[-1])
+            self.wait(0.2)
+        self.play(transitionLines.animate.shift(0.6*2*RIGHT), co2.animate.become(Text("53624").arrange(buff=0.3), match_center=True))
+        self.remove(ball, arrow)
+
+        for i in range(2):
+            self.play(rotate_texts(), transitionLines.animate.shift(LEFT*0.6), arrow_copies.animate.shift(LEFT*0.6), remembering[2][0].animate.become(Text(["6","8"][i]).set_color(BELL_COLORS[[5,7][i]]), match_center=True), co2.animate.become(Text(["52436","32546"][i]).arrange(buff=0.3), match_center=True))
+
+        self.play(FadeOut(arrow_copies, ball_copies))
+
+        new_placeBells = arrange_into_circle([Text(["In", "Before", "Middle", "Fourths", "Home", "Fifths", "Wrong"][i-2], color = BELL_COLORS[i-1]).scale(0.5) for i in order], center_of_circle, 3, add_arrows=True)
+        self.play(placeBells.animate.become(new_placeBells), remembering[2][0].animate.become(Text("Wrong").scale(0.5).set_color(BELL_COLORS[7]), match_center=True))
+
+        tenors_together = [0,2,4,10]
+        other = [1,3,5,6,7,8,9,11,12,13]
+        bob_transpositions = [[0,1,4,2,3],[0,3,1,2,4],[2,0,1,3,4],[1,2,3,4,0]]
+        single_transpositions = [[0,1,4,3,2],[0,3,2,1,4],[2,1,0,3,4],[1,0,3,4,5,6,2]]
+        call_table = MobjectTable([[Text("Position:"), Text("Bob:"), Text("Single:")],
+                                    *[[placeBells[n].copy().scale(2), create_transposition(bob_transpositions[i]), create_transposition(single_transpositions[i])] for i,n in enumerate(tenors_together)]])
+        call_table.scale_to_fit_height(config.frame_height*0.9)
+        self.play(FadeOut(remembering, bells, *[placeBells[i] for i in other], co, co2),
+                  *[placeBells[tenors_together[i]].animate.become(call_table.get_entries((i+2,1))) for i in range(4)],
+                  transitionLines.animate.become(VGroup(call_table.get_entries((4,2))[i] for i in [2,3,4])))
+        self.play(FadeIn(call_table))
