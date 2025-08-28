@@ -6,7 +6,10 @@ from LineObjectGroup import *
 pb = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
 # pbm = Method(6,"x16x16x16,12",Calls("14","1234",0,12,1),0,12)
 pbm = Method(8, "x18x18x18x18,12",Calls("14","1234",0,16,1),0,16)
-cam = Method(6,"x36x14x12x36x14x56,12",Calls("14","1234",0,24,1),0,24)
+pbM = Method(12, "x1Tx1Tx1Tx1Tx1Tx1T,12",Calls("14","1234",0,24,1),0,24)
+dnm = Method(8, "x14x36x58x18,18", Calls("16","1678", 0, 16,1), 0, 16)
+cam = Method(8, "x38x14x1258x36x14x58x16x78,12",Calls("14","1234",0,32,1),0,32)
+yor = Method(8, "x38x14x58x16x12x38x14x78,12",Calls("14","1234",0,32,1),0,32)
 
 def arrange_into_circle(m, center, radius, angle_offset=0, add_arrows = False):
     num = len(m)
@@ -58,6 +61,18 @@ def create_transposition(t, include_straight_lines = False, add_updaters = False
         if add_updaters:
             output[-1].add_updater(make_line_updater(output[0][i], output[1][n]))
     return output
+
+def create_co_stack(coursing_orders):
+    co = VGroup()
+    for i,row in enumerate(coursing_orders):
+        new_row = Text(''.join(map(str,row))).arrange(buff=0.3)
+        if i != 0:
+            new_row.next_to(co[-1].get_center(), DOWN, 1.2)
+            transition_lines = VGroup(Line(co[-1][j].get_bottom(), new_row[row.index(coursing_orders[i-1][j])].get_top(), buff=0.1) for j in range(8))
+            co.add(transition_lines)
+        co.add(new_row)
+    co.center()
+    return co
 
 class test(Scene):
     def construct(self):
@@ -298,7 +313,6 @@ class paragraph5(Scene):
                   Circumscribe(VGroup(placeBells[10], bells[5])),
                   Circumscribe(VGroup(placeBells[12], bells[6])))
 
-
         important_bells = VGroup(bells[i] for i in [0,1,4,5,6])
         co = Text("53246").arrange(buff=0.3).next_to(placeBells, buff=0.5).shift(UP*.5)
         self.play(TransformMatchingShapes(important_bells.copy(), co), bells[2].animate.set_opacity(0.2), bells[3].animate.set_opacity(0.2))
@@ -349,8 +363,12 @@ class paragraph5(Scene):
 
         self.play(FadeOut(arrow_copies, ball_copies))
 
+        new_placeBells = arrange_into_circle([Text(str([5, 4, 6, 3, 7, 2, 1][i-2]), color = BELL_COLORS[i-1]) for i in order], center_of_circle, 3, add_arrows=True)
+        self.play(placeBells.animate.become(new_placeBells), remembering[2][0].animate.become(Text("1").set_color(BELL_COLORS[7]), match_center=True), remembering[1].animate.become(Text("Current lead:"), match_center=True, match_height=True))
+        self.play(Circumscribe(placeBells[4]))
+
         new_placeBells = arrange_into_circle([Text(["In", "Before", "Middle", "Fourths", "Home", "Fifths", "Wrong"][i-2], color = BELL_COLORS[i-1]).scale(0.5) for i in order], center_of_circle, 3, add_arrows=True)
-        self.play(placeBells.animate.become(new_placeBells), remembering[2][0].animate.become(Text("Wrong").scale(0.5).set_color(BELL_COLORS[7]), match_center=True))
+        self.play(placeBells.animate.become(new_placeBells), remembering[2][0].animate.become(Text("Wrong").scale(0.5).set_color(BELL_COLORS[7]), match_center=True), remembering[1].animate.become(Text("Tenors CP:"), match_center=True, match_height=True))
 
         tenors_together = [0,2,4,10]
         other = [1,3,5,6,7,8,9,11,12,13]
@@ -359,12 +377,10 @@ class paragraph5(Scene):
         call_table = MobjectTable([[Text("Position:"), Text("Bob:"), Text("Single:")],
                                     *[[placeBells[n].copy().scale(2), create_transposition(bob_transpositions[i]), create_transposition(single_transpositions[i])] for i,n in enumerate(tenors_together)]])
         call_table.scale_to_fit_height(config.frame_height*0.9)
-        new_trText = Text("53246 87").scale(0.8*0.7).set_opacity(0.7)
-        arrange_into_line(new_trText, 0.4).to_corner(UR, buff=0.2)
         self.play(FadeOut(remembering, bells, *[placeBells[i] for i in other], co, co2),
                   *[placeBells[tenors_together[i]].animate.become(call_table.get_entries((i+2,1))) for i in range(4)],
                   transitionLines.animate.become(VGroup(call_table.get_entries((4,2))[i] for i in [2,3,4])),
-                  trText.animate.become(new_trText))
+                  trText.animate.scale(0.7).set_opacity(0.7).to_corner(UR, buff=0.2))
         self.play(FadeIn(call_table))
 
         bob_before_entry = call_table.get_entries((5,2))
@@ -372,8 +388,85 @@ class paragraph5(Scene):
         single_before_entry = call_table.get_entries((5,3))
         n_single_before = create_transposition([0,1,2,3,6,5,4], True, True).move_to(single_before_entry)
         self.play(FadeOut(bob_before_entry, single_before_entry), FadeIn(n_bob_before, n_single_before))
+        self.play(Circumscribe(VGroup(n_bob_before[0][5], n_bob_before[0][6])), Circumscribe(VGroup(n_single_before[0][5], n_single_before[0][6])))
         self.play(Rotate_co(n_bob_before[1]), Rotate_co(n_single_before[1]))
 
         #Horrible code
         self.play(FadeOut(n_bob_before[0][5], n_bob_before[0][6], n_bob_before[1][4], n_bob_before[1][5], n_bob_before[7], n_bob_before[8]),
                   VGroup(*[n_bob_before[0][i] for i in range(5)], *[n_bob_before[1][i] for i in [0,1,2,3,6]]).animate.shift(RIGHT*0.45))
+
+class paragraph6(Scene):
+    def construct(self):
+        trText = Text("75312468").scale(0.8).set_opacity(0.7) #Boiler plate stuff to keep this text in top right
+        arrange_into_line(trText, 0.4).scale(0.7)
+        self.add(trText.to_corner(UR, buff=0.2))
+        self.play(trText.animate.scale(1/0.7).set_opacity(1).to_corner(UR))
+
+        order = [4,6,8,7,5,3,2]
+        center_of_circle = LEFT*3
+        placeBells = arrange_into_circle([Text(str(i), color = BELL_COLORS[i-1]) for i in order], center_of_circle, 3, add_arrows=True)
+        bells = arrange_into_circle([Text(str(i)) for i in order], center_of_circle, 2)
+
+        one = Text("1").set_color(RED).shift([-2,.5,0]).shift(center_of_circle)
+        self.play(Write(placeBells, run_time=1), Write(bells, run_time=1))
+        self.play(Write(one))
+
+        def rotate_texts(rotations = 1):
+            for _ in range(rotations):
+                temp = bells[6] #Rotate around the bells in the array
+                bells.remove(temp)
+                bells.insert(0, temp)
+            return [Rotate_no_spin(b, -2*PI/7 * rotations, center_of_circle) for b in bells]
+        def bob_rotate():
+            animations = [bells[4].animate.move_to(bells[0])] + [Rotate_no_spin(bells[i], -2*PI/7, center_of_circle) for i in range(4)]
+            temp = bells[4]
+            bells.remove(temp)
+            bells.insert(0, temp)
+            return animations
+        def single_rotate():
+            animations = [Rotate_no_spin(bells[i], -2*PI/7, center_of_circle) for i in [0,1,2,3,5]] + [bells[4].animate.move_to(bells[0]), MoveAlongPath(bells[6], ArcBetweenPoints(bells[6].get_center(), bells[5].get_center(), -PI/3))]
+            # temp = bells[4]
+            # bells.remove(temp)
+            # bells.insert(0, temp)
+            return animations
+
+        pbs_co = [[1,2,4,6,8,7,5,3], [1,3,2,4,6,8,7,5], [1,3,7,2,4,6,8,5], [1,5,8,7,2,4,6,3]]
+        co = create_co_stack(pbs_co).shift(RIGHT*4)
+
+        bells_to_rotate = VGroup(bells, one)
+        self.play(TransformMatchingShapes(bells_to_rotate.copy(), co[0]))
+        self.play(rotate_texts())
+        self.play(TransformMatchingShapes(bells_to_rotate.copy(), co[2]))
+        self.play(Write(co[1]))
+        self.play(bob_rotate())
+        self.play(TransformMatchingShapes(bells_to_rotate.copy(), co[4]))
+        self.play(Write(co[3]))
+        self.play(single_rotate())
+        self.play(TransformMatchingShapes(bells_to_rotate.copy(), co[6]))
+        self.play(Write(co[5]))
+
+        self.play(FadeOut(bells_to_rotate, placeBells, co))
+
+        m1 = create_co_stack([[1,2,3,4,5,6,7,8], [1,5,3,2,4,6,7,8]]).shift(LEFT*3)
+        m1_text = Paragraph("Method 1", "Course head:", alignment="center").next_to(m1, direction=UP)
+        for i in [1,2]:
+            m1[i].remove(m1[i][0], m1[i][6], m1[i][7])
+        m2 = create_co_stack([[1,2,3,4,5,6,7,8], [1,2,4,6,8,7,5,3]]).shift(RIGHT*3)
+        m2_text = Paragraph("Method 2", "Lead head:", alignment="center").next_to(m2, direction=UP)
+        self.play(Write(m1), Write(m2), Write(m1_text), Write(m2_text))
+        self.play(m2.animate.become(create_co_stack([[1,3,5,2,7,4,8,6], [1,3,2,4,6,8,7,5]]), match_center=True))
+        self.play(m2.animate.become(create_co_stack([[1,5,7,3,8,2,6,4], [1,5,3,2,4,6,8,7]]), match_center=True))
+
+        self.play(FadeOut(m1_text, m2_text, m2, m1[0], m1[1]), m1[2].animate.center().scale(1.5))
+
+
+class paragraph7(Scene):
+    def construct(self):
+        trText = Text("75312468").scale(0.8) #Boiler plate stuff to keep this text in top right
+        arrange_into_line(trText, 0.4)
+        co = Text("53246").arrange(buff=0.3).scale(1.5)
+        self.add(trText.to_corner(UR), co)
+        self.wait()
+
+        line = LineObject(LineGenerator.generate_line([cam], lead_end_cap=1)).set_line_visible(8, True).scale_to_fit_height(config.frame_height * 0.9)
+        self.play(line.reveal())
