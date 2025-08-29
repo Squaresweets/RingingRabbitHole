@@ -23,10 +23,12 @@ def arrange_into_circle(m, center, radius, angle_offset=0, add_arrows = False):
     arrows = [Arc(angle=-(angle - buff*2), start_angle=PI/2 - i*angle - buff, radius=radius).shift(center).add_tip() for i in range(num)]
     return VGroup([x for pair in zip(m, arrows) for x in pair]) #Interleaved so arrows are between
 
-def arrange_into_line(m, buff=1):
+def arrange_into_line(m, buff=1, change_y=True):
     center = m.get_center()
     for i, item in enumerate(m):
-        item.set_y(center[1]).set_x(center[0]+buff*(i-(len(m)-1)/2))
+        item.set_x(center[0]+buff*(i-(len(m)-1)/2))
+        if change_y:
+            item.set_y(center[1])
     return m
 
 def Rotate_no_spin(mobject, angle, about_point=ORIGIN, scale=1):
@@ -73,6 +75,34 @@ def create_co_stack(coursing_orders):
         co.add(new_row)
     co.center()
     return co
+
+def generate_crosses(line, bell, line_object, buff=0.1):
+    bells_we_cross = []
+    previous_pos = line.indexes[0][bell]
+    for i,n in enumerate(line.indexes):
+        if i==0:
+            continue
+        pos = line.indexes[i][bell]
+        b = line.positions[i][previous_pos]
+        bells_we_cross.append(0 if pos == previous_pos or b == 1 else b)
+        previous_pos = pos
+
+    output = VGroup()
+    inner_group = VGroup() #Group together crosses of the same kind
+    group_num = 0
+    for i,n in enumerate(bells_we_cross):
+        if n == 0:
+            continue
+        c = Line(line_object.get_bell_text_entry(n,i).get_center(), line_object.get_bell_text_entry(n,i+1).get_center(), buff=buff, color=BELL_COLORS[n-1], stroke_width=10)
+        if n == group_num or group_num == 0:
+            group_num = n
+            inner_group.add(c)
+        else:
+            output.add(inner_group)
+            inner_group = VGroup(c)
+            group_num = n
+    output.add(inner_group)
+    return output
 
 class test(Scene):
     def construct(self):
@@ -400,7 +430,6 @@ class paragraph6(Scene):
         trText = Text("75312468").scale(0.8).set_opacity(0.7) #Boiler plate stuff to keep this text in top right
         arrange_into_line(trText, 0.4).scale(0.7)
         self.add(trText.to_corner(UR, buff=0.2))
-        self.play(trText.animate.scale(1/0.7).set_opacity(1).to_corner(UR))
 
         order = [4,6,8,7,5,3,2]
         center_of_circle = LEFT*3
@@ -408,7 +437,7 @@ class paragraph6(Scene):
         bells = arrange_into_circle([Text(str(i)) for i in order], center_of_circle, 2)
 
         one = Text("1").set_color(RED).shift([-2,.5,0]).shift(center_of_circle)
-        self.play(Write(placeBells, run_time=1), Write(bells, run_time=1))
+        self.play(Write(placeBells, run_time=1), Write(bells, run_time=1), trText.animate.scale(1/0.7).set_opacity(1).to_corner(UR))
         self.play(Write(one))
 
         def rotate_texts(rotations = 1):
@@ -466,7 +495,207 @@ class paragraph7(Scene):
         arrange_into_line(trText, 0.4)
         co = Text("53246").arrange(buff=0.3).scale(1.5)
         self.add(trText.to_corner(UR), co)
-        self.wait()
 
-        line = LineObject(LineGenerator.generate_line([cam], lead_end_cap=1)).set_line_visible(8, True).scale_to_fit_height(config.frame_height * 0.9)
-        self.play(line.reveal())
+        above_text = Text("Bob at middle").next_to(co, direction=UP, buff=1)
+        self.play(Rotate_co(VGroup(co[i] for i in [2,3,4]), reverse=True), Write(above_text, run_time=0.4))
+        self.play(Rotate_co(VGroup(co[i] for i in [0,1,3]), reverse=True), above_text.animate(run_time=0.4).become(Text("Bob at wrong"), match_center=True))
+        self.play(MoveAlongPath(co[3], ArcBetweenPoints(co[3].get_center(), co[4].get_center(), angle=-PI)),
+                  MoveAlongPath(co[4], ArcBetweenPoints(co[4].get_center(), co[3].get_center(), angle=-PI)),
+                  above_text.animate(run_time=0.4).become(Text("Single at home"), match_center=True))
+
+        line = LineObject(LineGenerator.generate_line([pbM], lead_end_cap=1)).set_line_visible(12, True).scale_to_fit_height(config.frame_height * 0.9).shift(LEFT*3)
+        self.play(line.reveal(), co.animate.become(Text("E9753214680T").arrange(buff=0.3).shift(RIGHT*3)), FadeOut(above_text, run_time=0.4))
+        unused_numbers = [0,1,2,6,9,10,11]
+        self.play(FadeOut(co[i]) for i in unused_numbers)
+        co = VGroup(x for j, x in enumerate(co) if j not in unused_numbers)
+        self.play(co.animate.become(Text("53246").arrange(buff=0.3).scale(1.5), match_center=True))
+
+        #DOUBLE NORWICH
+        double_norwich_line = LineGenerator.generate_line([dnm], lead_end_cap=1)
+        line2 = LineObject(double_norwich_line).set_line_visible(8, True).scale_to_fit_height(config.frame_height * 0.9).shift(LEFT*3)
+        self.play(FadeIn(line2), FadeOut(line))
+
+        crosses = generate_crosses(double_norwich_line, 8, line2)
+        self.play(Write(crosses))
+
+        new_co = VGroup(Text("753246"[i], color=crosses[i][0].color).scale(0.8).match_y(crosses[i]).set_x(-1) for i in range(6))
+        crosses_copy = crosses.copy()
+        self.play(crosses_copy.animate.become(new_co))
+
+        new_co2 = Text("753246").arrange(buff=0.3).scale(1.5)
+        new_co2.shift(co[0].get_center()-new_co2[1].get_center())
+        self.play(new_co.animate.become(new_co2))
+
+        #CAMBRIDGE
+        cam_line = LineGenerator.generate_line([cam], lead_end_cap=1)
+        line3 = LineObject(cam_line).set_line_visible(3, True).scale_to_fit_height(config.frame_height * 0.9)
+        self.play(FadeIn(line3), FadeOut(line2, crosses, co, crosses_copy, new_co))
+
+        crosses = generate_crosses(cam_line, 3, line3, 0.01)
+        self.play(Write(crosses))
+        new_co = VGroup(Text("4687524687"[i], color=crosses[i][0].color).scale(0.5).match_y(crosses[i]).set_x(1) for i in range(10))
+        crosses_copy = crosses.copy()
+        self.play(crosses_copy.animate.become(new_co))
+
+        #CAMBRIDGE
+        york_line = LineGenerator.generate_line([yor], lead_end_cap=1)
+        line4 = LineObject(york_line).set_line_visible(2, True).scale_to_fit_height(config.frame_height * 0.9)
+        self.play(FadeIn(line4), FadeOut(line3, crosses_copy, crosses))
+
+        crosses = generate_crosses(york_line, 2, line4, 0.01)
+        self.play(Write(crosses))
+        new_co = VGroup(Text("647853468"[i], color=crosses[i][0].color).scale(0.5).match_y(crosses[i]).set_x(1) for i in range(9))
+        crosses_copy = crosses.copy()
+        self.play(crosses_copy.animate.become(new_co))
+
+        swap_arc1 = ArcBetweenPoints(new_co[0].get_right(), new_co[1].get_right(), -PI/2).add_tip(tip_length=0.1, tip_width=0.1).add_tip(tip_length=0.1, tip_width=0.1, at_start=True)
+        swap_arc2 = ArcBetweenPoints(new_co[2].get_right(), new_co[3].get_right(), -PI/2).add_tip(tip_length=0.1, tip_width=0.1).add_tip(tip_length=0.1, tip_width=0.1, at_start=True)
+        self.play(Write(swap_arc1), Write(swap_arc2))
+
+        final_row = line4.get_row(32)
+        lead_heads = VGroup(Text(["13527486", "15738264", "17856342", "18674523", "16482735", "14263857"][i]).arrange(buff=0.3) for i in range(6)).arrange(direction=DOWN, buff=0.5)
+        text = Text("Plain bob lead heads:").next_to(lead_heads, direction=UP, buff=0.5)
+        VGroup(text, lead_heads).center()
+        self.play(FadeOut(line4, crosses, crosses_copy, swap_arc1, swap_arc2), final_row.animate.become(lead_heads[1]))
+        lead_heads.remove(lead_heads[1])
+        self.play(Write(lead_heads), Write(text, run_time=0.5))
+
+        names = ["1 (In)", "4 (Fifths)", "5 (Home)", "6 (Before)"]
+        bob_transpositions = [[1,2,0,3,4],[0,1,3,4,2],[4,0,1,2,3],[0,2,3,1,4]]
+        single_transpositions = [[0,1,4,3,2],[0,3,2,1,4],[2,1,0,3,4],[1,2,3,4,0,6,5]]
+        call_table = MobjectTable([[Text("Position:"), Text("Bob:"), Text("Single:")],
+                                    *[[Text(names[i]), create_transposition(bob_transpositions[i]), create_transposition(single_transpositions[i])] for i in range(4)]])
+        call_table.scale_to_fit_height(config.frame_height*0.9)
+        self.play(FadeIn(call_table), FadeOut(lead_heads, text, final_row), trText.animate.scale(0.7).set_opacity(0.7).to_corner(UR, buff=0.2))
+
+class paragraph8(Scene):
+    def construct(self):
+        names = ["1 (In)", "4 (Fifths)", "5 (Home)", "6 (Before)"]
+        bob_transpositions = [[1,2,0,3,4],[0,1,3,4,2],[4,0,1,2,3],[0,2,3,1,4]]
+        single_transpositions = [[0,1,4,3,2],[0,3,2,1,4],[2,1,0,3,4],[1,2,3,4,0,6,5]]
+        call_table = MobjectTable([[Text("Position:"), Text("Bob:"), Text("Single:")],
+                                    *[[Text(names[i]), create_transposition(bob_transpositions[i]), create_transposition(single_transpositions[i])] for i in range(4)]])
+        call_table.scale_to_fit_height(config.frame_height*0.9)
+
+        trText = Text("75312468").scale(0.8) #Boiler plate stuff to keep this text in top right
+        arrange_into_line(trText, 0.4)
+        trText.scale(0.7).set_opacity(0.7).to_corner(UR, buff=0.2)
+        self.add(call_table, trText)
+        
+        tittums = Paragraph("Tittums:", "_5_6_7_8", alignment="center").scale(1.5)
+        arrange_into_line(tittums[1], 1, False)
+        self.play(FadeIn(tittums), FadeOut(call_table), trText.animate.scale(1/0.7).set_opacity(1).to_corner(UR))
+        new_tittums = Text("_____7_8").scale(1.5)
+        arrange_into_line(new_tittums, 1, False)
+        self.play(tittums[1].animate.become(new_tittums, match_center=True))
+
+        rows = [[0,5,0,6,0,7,0,8],
+                [1,3,2,5,4,7,6,8], #
+                [3,1,2,5,4,7,6,8],
+                [3,5,2,1,4,7,6,8],
+                [2,3,4,5,6,7,1,8], #
+                [2,3,4,5,1,7,6,8], #
+                [2,3,1,5,4,7,6,8]] #
+        all_instances = VGroup()
+        for r in rows:
+            t = Text(''.join(map(lambda i: '_' if i == 0 else str(i),r))).scale(1.5)
+            arrange_into_line(t, .7, False)
+            if 0 not in r:
+                t[r.index(1)].set_color(RED)
+            t[r.index(7)].set_color(BELL_COLORS[2])
+            t[r.index(8)].set_color(BELL_COLORS[3])
+            all_instances.add(t)
+        all_instances.arrange(direction=DOWN).center().scale(0.9)
+        self.play(Write(all_instances), FadeOut(tittums[0], run_time=0.2), tittums[1].animate(remover=True).become(all_instances[0].copy()))
+
+        self.play(FadeOut(all_instances[2], all_instances[3]))
+        all_instances.remove(all_instances[2], all_instances[3])
+        self.play(all_instances.animate.arrange(direction=DOWN).center().scale(1/0.9))
+
+        self.play(Circumscribe(all_instances[0][1]))
+        self.play(Circumscribe(VGroup(all_instances[1][1], all_instances[4][1])))
+        self.play(Circumscribe(all_instances[0][3]))
+        self.play(Circumscribe(VGroup(all_instances[1][3], all_instances[4][3])))
+
+        co = Text("53246").arrange().scale(1.3).next_to(all_instances, buff=0.6)
+        self.play(Write(co))
+        new_co = Text("65___")
+        arrange_into_line(new_co, 0.6, False).scale(1.3).next_to(all_instances, buff=0.6)
+        self.play(co.animate.become(new_co))
+
+        self.play(FadeOut(all_instances), co.animate.become(Text("53246").arrange().scale(2)))
+        above_text = Text(".").scale(0.01).next_to(co, direction=UP, buff=1.5)
+
+        order = [-1,-1,2,1,3,0,4]
+        def bob_rotate(effected_bells, position, rev=True):
+            indexes = [order[b] for b in effected_bells]
+            return AnimationGroup(Rotate_co(VGroup(co[i] for i in indexes), reverse=rev),
+                                  above_text.animate(run_time=0.4).become(Text("Bob at " + position), match_center=True))
+        def single_rotate(bell1, bell2, position):
+            index1 = order[bell1]
+            index2 = order[bell2]
+            return AnimationGroup(MoveAlongPath(co[index1], ArcBetweenPoints(co[index1].get_center(), co[index2].get_center(), angle=-PI)),
+                                  MoveAlongPath(co[index2], ArcBetweenPoints(co[index2].get_center(), co[index1].get_center(), angle=-PI)),
+                                  above_text.animate(run_time=0.4).become(Text("Single at " + position), match_center=True))
+
+        self.play(single_rotate(2,6,"middle"))
+        self.play(bob_rotate([5,3,6],"wrong"))
+        self.play(bob_rotate([3,6,5],"wrong"))
+        self.play(Circumscribe(VGroup(co[order[6]], co[order[5]])))
+        self.play(co.animate.become(Text("53246").arrange().scale(2)), above_text.animate(run_time=0.4).become(Text("Reset to show other option"), match_center=True)) # Reset to show before instead
+        self.play(bob_rotate([5,3,2,4,6],"before",False))
+        self.play(Circumscribe(VGroup(co[order[6]], co[order[5]])))
+        self.play(single_rotate(3,4,"middle"))
+        self.play(bob_rotate([4,3,2],"middle"))
+        self.play(bob_rotate([2,3,4],"middle"))
+        self.play(single_rotate(3,2,"middle"))
+        self.play(bob_rotate([2,4,3],"middle"))
+
+        self.play(bob_rotate([6,5,4],"wrong"))
+        self.play(bob_rotate([6,3,2],"middle"))
+        self.play(bob_rotate([4,3,2],"home, bringing us round"))
+
+        self.play(Unwrite(b, run_time=1) for b in [co, above_text, trText])
+
+class introduction(MovingCameraScene):
+    def construct(self):
+        pb = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+        plain = LineObject(LineGenerator.generate_line([pb]))
+        for i in range(5):
+            plain.set_line_visible(i, True)
+        
+        lines = VGroup(plain.bell_lines).clear_updaters()
+        self.play(Create(l, rate_func=smoothstep, run_time=1) for l in lines)
+        radius = 2.5
+        height = lines.height
+        def bend(p):
+            x, y, z = p
+            angle = y/(height/2)*PI+PI/2
+            return (radius+x) * np.array([np.sin(angle), -np.cos(angle), 0])
+        self.play(ApplyPointwiseFunction(bend, lines, run_time=2))
+
+        t = Paragraph("The Ringing", "Rabbit Hole", alignment="center")
+        name = Text("By Matthew Collier").scale(0.5).next_to(t,direction=DOWN)
+        self.play(Write(VGroup(t,name)))
+        t2 = Paragraph("Episode 4:", "Coursing Order", alignment="center").scale(0.8).shift(DOWN*3)
+        self.play(Write(t2), VGroup(lines, t, name).animate(run_time=0.6).shift(UP*0.8))
+        self.wait()
+        self.play(self.camera.frame.animate(run_time=0.8, rate_func=smooth).scale(0.005).move_to(t[1][7]))
+
+class outro(Scene):
+    def construct(self):
+        pb = Method(5,"5.1.5.1.5,125",Calls("145","123",0,10,1),0,10)
+        plain = LineObject(LineGenerator.generate_line([pb])).scale(2.7)
+        leDist = plain.ruleoffs[0].get_y()-plain.ruleoffs[1].get_y()
+        plain.shift([5,-.5*leDist,0])
+        for i in range(5):
+            plain.set_line_visible(i, True)
+        t = Paragraph("Thanks for watching!", "Created by Matthew Collier", line_spacing=.7)
+        t2 = Paragraph("Special thanks to:", "Mick Hutton for letting me borrow his microphone", "Jadd Virji for the support", "All ringers at St. Barnabas", "Everyone in the CUGCR", "", "", "Consider downloading my app \"Campana\" for more ringing fun!", line_spacing=.7).scale(0.5)
+        texts = VGroup(t, t2).arrange(direction=DOWN)
+        t.to_edge(LEFT).shift(UP)
+        t2.to_edge(LEFT).shift(UP)
+        campana = ImageMobject("Campana.png").scale(0.6).next_to(t2, direction=DOWN).to_edge(LEFT)
+        self.play(FadeIn(plain, run_time=2), Write(texts, run_time=2))
+        self.play(FadeIn(campana, run_time=0.5))
+        self.wait()

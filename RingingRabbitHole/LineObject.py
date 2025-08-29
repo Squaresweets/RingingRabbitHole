@@ -59,7 +59,6 @@ class LineObject(Mobject):
             
             self.add(t)
             self.labels[i] = t
-
         
         # Create all the bell lines
         self.bell_lines = [VMobject() for _ in range(line.stage)]
