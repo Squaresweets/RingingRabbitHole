@@ -560,19 +560,21 @@ class paragraph7(Scene):
         lead_heads.remove(lead_heads[1])
         self.play(Write(lead_heads), Write(text, run_time=0.5))
 
-        names = ["1 (In)", "4 (Fifths)", "5 (Home)", "6 (Before)"]
+        names = ["1", "4", "5", "6"]
         bob_transpositions = [[1,2,0,3,4],[0,1,3,4,2],[4,0,1,2,3],[0,2,3,1,4]]
-        single_transpositions = [[0,1,4,3,2],[0,3,2,1,4],[2,1,0,3,4],[1,2,3,4,0,6,5]]
+        single_transpositions = [[2,1,0,3,4],[0,1,4,3,2],[4,0,1,2,3,6,5],[0,3,2,1,4]]
+        amendment = Text("Numerical CP used as it doesn't change between bobs and singles").scale(0.3).to_corner(DL, buff=0.2)
         call_table = MobjectTable([[Text("Position:"), Text("Bob:"), Text("Single:")],
                                     *[[Text(names[i]), create_transposition(bob_transpositions[i]), create_transposition(single_transpositions[i])] for i in range(4)]])
         call_table.scale_to_fit_height(config.frame_height*0.9)
-        self.play(FadeIn(call_table), FadeOut(lead_heads, text, final_row), trText.animate.scale(0.7).set_opacity(0.7).to_corner(UR, buff=0.2))
+        self.play(FadeIn(call_table), FadeIn(amendment), FadeOut(lead_heads, text, final_row), trText.animate.scale(0.7).set_opacity(0.7).to_corner(UR, buff=0.2))
 
 class paragraph8(Scene):
     def construct(self):
-        names = ["1 (In)", "4 (Fifths)", "5 (Home)", "6 (Before)"]
+        names = ["1", "4", "5", "6"]
         bob_transpositions = [[1,2,0,3,4],[0,1,3,4,2],[4,0,1,2,3],[0,2,3,1,4]]
-        single_transpositions = [[0,1,4,3,2],[0,3,2,1,4],[2,1,0,3,4],[1,2,3,4,0,6,5]]
+        single_transpositions = [[2,1,0,3,4],[0,1,4,3,2],[4,0,1,2,3,6,5],[0,3,2,1,4]]
+        amendment = Text("Numerical CP used as it doesn't change between bobs and singles").scale(0.3).to_corner(DL, buff=0.2)
         call_table = MobjectTable([[Text("Position:"), Text("Bob:"), Text("Single:")],
                                     *[[Text(names[i]), create_transposition(bob_transpositions[i]), create_transposition(single_transpositions[i])] for i in range(4)]])
         call_table.scale_to_fit_height(config.frame_height*0.9)
@@ -580,11 +582,11 @@ class paragraph8(Scene):
         trText = Text("75312468").scale(0.8) #Boiler plate stuff to keep this text in top right
         arrange_into_line(trText, 0.4)
         trText.scale(0.7).set_opacity(0.7).to_corner(UR, buff=0.2)
-        self.add(call_table, trText)
+        self.add(call_table, trText, amendment)
         
         tittums = Paragraph("Tittums:", "_5_6_7_8", alignment="center").scale(1.5)
         arrange_into_line(tittums[1], 1, False)
-        self.play(FadeIn(tittums), FadeOut(call_table), trText.animate.scale(1/0.7).set_opacity(1).to_corner(UR))
+        self.play(FadeIn(tittums), FadeOut(call_table, amendment), trText.animate.scale(1/0.7).set_opacity(1).to_corner(UR))
         new_tittums = Text("_____7_8").scale(1.5)
         arrange_into_line(new_tittums, 1, False)
         self.play(tittums[1].animate.become(new_tittums, match_center=True))
