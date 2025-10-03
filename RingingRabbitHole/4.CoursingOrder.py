@@ -355,14 +355,13 @@ class paragraph5(Scene):
         transitionLines = VGroup(*[Line(co[i].get_bottom(), co2[[2,0,1][i]].get_top(), buff=0.2) for i in range(3)])
         self.play(Create(transitionLines))
 
-        remembering = Paragraph("Remembering:", "Tenors PB:", "7", alignment="center").scale(0.7).shift(LEFT*5)
+        remembering = Paragraph("Remembering:", "Tenor's PB:", "7", alignment="center").scale(0.7).shift(LEFT*5)
         remembering[2][0].set_color(BELL_COLORS[6])
         self.play(Write(remembering, run_time=1))
 
         new_bells = arrange_into_circle([Text(str(i)) for i in [8,7,5,3,2,4,6]], center_of_circle, 2)
         new_bells[0].set_opacity(0.2)
         new_bells[1].set_opacity(0.2)
-        # self.play(TransformMatchingShapes(bells, new_bells), remembering[2][0].animate.become(Text("4").set_color(BELL_COLORS[3]), match_center=True))
         self.play(bells.animate.become(new_bells), remembering[2][0].animate.become(Text("4").set_color(BELL_COLORS[3]), match_center=True))
 
         ball = Dot(bells[1].get_center()*0.7, radius=0.1)
@@ -398,7 +397,7 @@ class paragraph5(Scene):
         self.play(Circumscribe(placeBells[4]))
 
         new_placeBells = arrange_into_circle([Text(["In", "Before", "Middle", "Fourths", "Home", "Fifths", "Wrong"][i-2], color = BELL_COLORS[i-1]).scale(0.5) for i in order], center_of_circle, 3, add_arrows=True)
-        self.play(placeBells.animate.become(new_placeBells), remembering[2][0].animate.become(Text("Wrong").scale(0.5).set_color(BELL_COLORS[7]), match_center=True), remembering[1].animate.become(Text("Tenors CP:"), match_center=True, match_height=True))
+        self.play(placeBells.animate.become(new_placeBells), remembering[2][0].animate.become(Text("Wrong").scale(0.5).set_color(BELL_COLORS[7]), match_center=True), remembering[1].animate.become(Text("Tenor's CP:"), match_center=True, match_height=True))
 
         tenors_together = [0,2,4,10]
         other = [1,3,5,6,7,8,9,11,12,13]
