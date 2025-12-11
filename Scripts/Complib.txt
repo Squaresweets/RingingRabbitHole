@@ -1,0 +1,22 @@
+Calling:
+Types of columns:
+Calling positions (BWH):
+    Can have multiple columns of the same position. Read left to right top to bottom.
+    Left to right top to bottom, whenever you get a call replace it with the top of the column then that call
+    sV–M–W–IsWsF–H–VsB–F
+    If more than 3 with different positions, grouped together into a= or whatever
+Calling positions (123)
+Parts:
+    ±2[–-,-] Replace with second one in part 2
+    +3|6[s] Include in parts 3 and 6
+    - is omit
+
+
+
+Methods:
+    Half lead splices
+    Define every lead, read top to bottom, can only have one methods column
+
+Blocks:
+    Can only be used after being defined. Cannot be redefined.
+    Can have multiple blocks columns
