@@ -1,0 +1,62 @@
+Notes:
+Types of columns:
+Calling positions (BWH):
+    Can have multiple columns of the same position. Read left to right top to bottom.
+    Left to right top to bottom, whenever you get a call replace it with the top of the column then that call
+    sV–M–W–IsWsF–H–VsB–F
+    If more than 3 with different positions, grouped together into a= or whatever
+    Number based calls, work with how many leads since the last course head. A course head occurs either when a lead head matches the coursehead mask(s) or when a cell contains a colon.
+    Course head is blue, parthead is green
+    Brackets at each end are length of each course, goes onto next row when new course!!
+
+Calling positions (123)
+Parts:
+    ±2[–-,-] Replace with second one in part 2
+    +3|6[s] Include in parts 3 and 6
+    - is omit
+
+Methods:
+    Half lead splices
+    Define every lead, read top to bottom
+    Starting place lets you shift method left and right, filling in the rest with places
+    Rotate by x rotates all place notation back towards the start.
+    Start row no. only effects the first lead and starts from a later row (done after rotation). Theres also a seperate start row number(?)
+
+Calls:
+    There are defualt calls, but can add custom
+    Changes replaced is how many are overwritten, doesn't have to be the same length as the notation (trim)
+    You can make your own calling positions using the right side of the able and defining an observation mask.
+    Lead position name is liked to call, where it checks for the observation mask.
+
+
+Blocks:
+    Can only be used after being defined. Cannot be redefined.
+    Can have multiple blocks columns
+
+Video plan:
+Intro 
+Describe complib, mention that it can be complicated to get started with creating compositions.
+Start with methods. Either add title or add methods from collection. Note that that automatically fills in a few boxes in the general tab. Mention to ignore numbers on the right will go over them later.
+Calls tab, note that here you can add custom calls but there are automatically calls generated using the "Default calls" option.
+Onto calling. Grid may seem daunting at first but there are only a few types of column you can add. First row defines the type of each column.
+Ignoring named columns, this si the layout of a regular composition. Calling positions are at the top of each column and calls are read left to right top to bottom. Can have multiple in one and can use 2(-) notation or whatever. It is possible to add custom calling positions which we will cover later.
+There are also numeric calling positions where the number lines up with the number of leads since the last coursehead. Courseheads are marked by blue ruleoffs, and occur when a lead head matches the coursehead mask(s) given in the general tab. You can also force a coursehead early using a colon.
+Give some examples
+Show what it compiles into.
+At this point we need to introduce parts, describe a bit about what parts are and how the notation repeats. But what if our notation repeats but only with minor changes. We can use the [] notation. This may seem confusing, but remember that everything is read left to right top to bottom, so just find the corresponding ]. These are the different forms of this notation (pm, p, m) explain what each part does. Explain here about the part heads (green).
+But what about the special columns. Methods columns are all concatonated left to right top to bottom and define what method each lead is using the menmonic given with the method. A fullstop signifies a call. #(Q,S) notation can be used to repeat all inside until the end.
+Blocks, go from first to last instance of a letter. Can have multiple columns. After defining you can use it, but position doesn't matter it takes up a whole row in teh output and just fills it out.
+
+That's the basics for creating compositions, but you can customise it further with custom calls and calling positions.
+When defining a method mnemonic you don't only give it a method you can also add extra information, so you could have two mneomics refuring to the same method but with different modifiers. Starting place can shift the line left or right for compositions on higher stages. Rotate by rotates all of the changes in the place notation. Start row no. makes it so that when you sp-lice to that method (or at the very start) you start at a different row within the method, with the missing start at the end. Lead ends are in the normal places. Length lets you cut off place notation. Note that you can do start position seperatly.
+Lead position row no. and lead position name are more complicated. You can define multiple lead positions per method and use that to to define custom calling positions. For example you can add a call t which occurs at the half lead position.
+The mnemonic heading and observation mask fields let you define custom calling positions. These positions can be used for default calls but not for other custom calls without redefining them. The observation mask uses the same notation as the coursehead mask. Can also override default calls to get a different observation bell for that method if you fancy it.
+
+
+Script:
+Hi there, my name is Matthew and welcome to the fifth episode of the ringing rabbit hole. Today I want to discuss how to use CompLib for composition creation. Note that this video will focus more on using the software than coming up with the compositions themselves.
+
+For those of you that don't know, Complib is a website created by Graham John for creating and sharing methods and compositions. It's an incredibly powerful tool but can be quite intimidating for beginners, so let's take it slow. After creating an account you will be greated with this screen, where you can see and search for popular compositions. Cloning compositions and seeing how they are laid out is a great way to learn how everything works, but for now lets press here to create a new composition. We have a few tabs but I will only focus on the first four in this video. The general tab is where we input settings for the composition as a whole, the methods tab is where we can add methods to splice between, the calls tab lets us define custom calls and the calling tab lets us lay out our composition. This is where you will be spending the majority of your time! Let's start by adding a method. You can see that in the general tab some fields have been automatically filled in. These defaults are fine for now.
+
+Moving back to the calling tab we can start to lay out the composition. The top cell of each column in this grid defines what that column does, and can either be a calling position, the word "methods" or the word "blocks". As an example of how a composition
+Use an example: https://complib.org/composition/10478/copy
